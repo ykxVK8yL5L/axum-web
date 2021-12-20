@@ -20,6 +20,11 @@ jobs:
           target: aarch64-apple-darwin
           profile: minimal
           default: true
+      - name: Build wheels - x86_64
+        uses: messense/maturin-action@v1
+        with:
+          target: x86_64-apple-darwin
+          args: --release --out dist --strip
       - name: Upload binary artifacts
         uses: actions/upload-artifact@v2
         with:
