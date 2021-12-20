@@ -1,0 +1,42 @@
+name: Build for Mac
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release'
+        required: true
+        default: 'v0.0.1'
+jobs:
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: aarch64-apple-darwin
+          profile: minimal
+          default: true
+      - name: Upload binary artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: apple-darwin-bin
+          path: target/release/axum-web
+          if-no-files-found: error
+      - name: Archive binary
+        run: |
+          cd target/release
+          tar czvf axum-web-${{ steps.tag.outputs.tag }}.apple-darwin.tar.gz aliyundrive-webdav
+          shasum -a 256 axum-web-${{ steps.tag.outputs.tag }}.apple-darwin.tar.gz > axum-web-${{ steps.tag.outputs.tag }}.apple-darwin.tar.gz.sha256
+          cd -
+      - name: Upload binary to GitHub Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/aliyundrive-webdav*.tar.gz
+          file_glob: true
+          overwrite: true
+          tag: "refs/tags/${{ github.event.inputs.tag }}"
