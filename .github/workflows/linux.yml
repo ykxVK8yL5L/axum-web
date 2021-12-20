@@ -1,4 +1,4 @@
-name: Release Without docker
+name: Release For Linux
 
 on:
   repository_dispatch:
