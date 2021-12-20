@@ -50,8 +50,8 @@ jobs:
       - name: Archive binary
         run: |
           cd target/release
-          tar czvf axum-web-${{ steps.tag.outputs.tag }}.apple-darwin.tar.gz axum-web
-          shasum -a 256 axum-web-${{ steps.tag.outputs.tag }}.apple-darwin.tar.gz > axum-web-${{ steps.tag.outputs.tag }}.apple-darwin.tar.gz.sha256
+          tar czvf axum-web-${{ github.event.inputs.tag }}.apple-darwin.tar.gz axum-web
+          shasum -a 256 axum-web-${{ github.event.inputs.tag }}.apple-darwin.tar.gz > axum-web-${{ github.event.inputs.tag }}.apple-darwin.tar.gz.sha256
           cd -
       - name: Upload binary to GitHub Release
         uses: svenstaro/upload-release-action@v2
