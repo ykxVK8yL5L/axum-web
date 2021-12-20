@@ -12,6 +12,8 @@ tracing = "0.1"
 tracing-subscriber = { version="0.3", features = ["env-filter"] }
 tower-http = { version = "0.2.0", features = ["fs", "trace"] }
 askama = "0.10"
+mime_guess = "2.0.3"
+rust-embed="6.3.0"
 
 [profile.release]
 opt-level = 'z'
