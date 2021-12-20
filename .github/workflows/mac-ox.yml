@@ -1,4 +1,4 @@
-name: Build for Mac
+name: Release For Mac
 
 on:
   repository_dispatch:
