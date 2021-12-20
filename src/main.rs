@@ -1,14 +1,20 @@
 use askama::Template;
 use axum::{
-    body::{self, Full},
+    body::{boxed,self, Full},
     extract,
-    http::StatusCode,
+    http::{header, StatusCode, Uri},
     response::{Html, IntoResponse, Response},
     routing::{get_service,get},
     Router,
+    handler::Handler,
 };
 use std::net::SocketAddr;
 use tower_http::{services::ServeDir, trace::TraceLayer};
+use mime_guess;
+use rust_embed::RustEmbed;
+
+
+
 
 #[tokio::main]
 async fn main() {
@@ -18,22 +24,32 @@ async fn main() {
     }
     tracing_subscriber::fmt::init();
 
+    
+
+
     // build our application with some routes
+    // let app = Router::new()
+    //     .nest(
+    //         "/assets",
+    //         get_service(ServeDir::new("public/assets")).handle_error(|error: std::io::Error| async move {
+    //             (
+    //                 StatusCode::INTERNAL_SERVER_ERROR,
+    //                 format!("Unhandled internal error: {}", error),
+    //             )
+    //         }),
+    //     )
+    //     .route("/greet/:name", get(greet))
+    //     .route("/", get(root));
+
+
     let app = Router::new()
-        .nest(
-            "/assets",
-            get_service(ServeDir::new("public/assets")).handle_error(|error: std::io::Error| async move {
-                (
-                    StatusCode::INTERNAL_SERVER_ERROR,
-                    format!("Unhandled internal error: {}", error),
-                )
-            }),
-        )
         .route("/greet/:name", get(greet))
+        .route("/assets/", static_handler.into_service())
+        .fallback(static_handler.into_service())
         .route("/", get(root));
 
     // run it
-    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 10099));
     tracing::debug!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
@@ -78,3 +94,34 @@ where
         }
     }
 }
+
+// static_handler is a handler that serves static files from the
+async fn static_handler(uri: Uri) -> impl IntoResponse {
+    let mut path = uri.path().trim_start_matches('/').to_string();
+    if path.starts_with("assets/") {
+      path = path.replace("assets/", "");
+    }
+    StaticFile(path)
+  }
+  
+  #[derive(RustEmbed)]
+  #[folder = "public/assets"]
+  struct Asset;
+  pub struct StaticFile<T>(pub T);
+  
+  impl<T> IntoResponse for StaticFile<T>
+  where
+    T: Into<String>,
+  {
+    fn into_response(self) -> Response {
+      let path = self.0.into();
+      match Asset::get(path.as_str()) {
+        Some(content) => {
+          let body = boxed(Full::from(content.data));
+          let mime = mime_guess::from_path(path).first_or_octet_stream();
+          Response::builder().header(header::CONTENT_TYPE, mime.as_ref()).body(body).unwrap()
+        }
+        None => Response::builder().status(StatusCode::NOT_FOUND).body(boxed(Full::from("404"))).unwrap(),
+      }
+    }
+  }
