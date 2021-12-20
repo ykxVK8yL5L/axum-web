@@ -1,9 +1,3 @@
-//! Run with
-//!
-//! ```not_rust
-//! cargo run -p example-templates
-//! ```
-
 use askama::Template;
 use axum::{
     body::{self, Full},
