@@ -23,25 +23,6 @@ async fn main() {
         std::env::set_var("RUST_LOG", "example_templates=debug")
     }
     tracing_subscriber::fmt::init();
-
-    
-
-
-    // build our application with some routes
-    // let app = Router::new()
-    //     .nest(
-    //         "/assets",
-    //         get_service(ServeDir::new("public/assets")).handle_error(|error: std::io::Error| async move {
-    //             (
-    //                 StatusCode::INTERNAL_SERVER_ERROR,
-    //                 format!("Unhandled internal error: {}", error),
-    //             )
-    //         }),
-    //     )
-    //     .route("/greet/:name", get(greet))
-    //     .route("/", get(root));
-
-
     let app = Router::new()
         .route("/greet/:name", get(greet))
         .route("/assets/", static_handler.into_service())
