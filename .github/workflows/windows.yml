@@ -9,7 +9,7 @@ on:
         required: true
         default: 'v0.0.1'
 jobs:
-  windows-bak:
+  windows:
     runs-on: windows-latest
     strategy:
       matrix:
