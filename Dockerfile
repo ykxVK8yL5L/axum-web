@@ -7,9 +7,10 @@ RUN apk add tzdata && \
 	echo "Asia/Shanghai" > /etc/timezone && \
 	apk del tzdata
 
-RUN mkdir -p /etc/pikpak-webdav
+RUN mkdir -p /etc/axum-web
 WORKDIR /root/
-ADD webdav-$TARGETARCH$TARGETVARIANT /usr/bin/webdav
+ADD axum-web-$TARGETARCH$TARGETVARIANT /usr/bin/axum-web
 
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["/usr/bin/webdav", "--host", "0.0.0.0", "--workdir", "/etc/pikpak-webdav"]
+#CMD ["/usr/bin/axum-web", "--host", "0.0.0.0", "--workdir", "/etc/axum-web"]
+CMD ["/usr/bin/axum-web"]
