@@ -127,7 +127,7 @@ jobs:
           file_glob: true
           overwrite: true
           tag: "refs/tags/${{ github.event.inputs.tag }}"
-   windows:
+  windows:
     runs-on: windows-latest
     strategy:
       matrix:
