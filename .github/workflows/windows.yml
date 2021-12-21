@@ -1,0 +1,62 @@
+name: Release For Windows
+
+on:
+  repository_dispatch:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to release'
+        required: true
+        default: 'v0.0.1'
+jobs:
+  windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        platform:
+          - arch: x64
+            target: x86_64-pc-windows-msvc
+          - arch: x86
+            target: i686-pc-windows-msvc
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+          architecture: ${{ matrix.platform.arch }}
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          default: true
+      - name: Build wheels
+        uses: messense/maturin-action@v1
+        with:
+          target: ${{ matrix.platform.target }}
+          args: --release --out dist --no-sdist --strip
+      - name: Upload wheels
+        uses: actions/upload-artifact@v2
+        with:
+          name: wheels
+          path: dist
+          if-no-files-found: error
+      - name: Upload binary artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-${{ matrix.platform.arch }}-bin
+          path: target/${{ matrix.platform.target }}/release/axum-web.exe
+          if-no-files-found: error
+      - name: Archive binary
+        run: |
+          cd target/${{ matrix.platform.target }}/release
+          7z a axum-web.zip axum-web.exe
+          cd -
+      - name: Upload binary to GitHub Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          asset_name: axum-web-${{ github.event.inputs.tag }}.windows-${{ matrix.platform.arch }}.zip
+          file: target/${{ matrix.platform.target }}/release/axum-web.zip
+          overwrite: true
+          tag: "refs/tags/${{ github.event.inputs.tag }}"
