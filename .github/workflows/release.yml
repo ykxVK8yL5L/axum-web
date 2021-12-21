@@ -1,4 +1,4 @@
-name: 1Release For All
+name: Release For All
 
 on:
   repository_dispatch:
