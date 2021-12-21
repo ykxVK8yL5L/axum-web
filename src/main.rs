@@ -31,7 +31,8 @@ async fn main() {
 
     // run it
     let addr = SocketAddr::from(([0, 0, 0, 0], 10099));
-    tracing::info!("listening on {}", addr);
+    tracing::debug!("listening on {}", addr);
+    println!("在浏览器中打开: http://{}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
