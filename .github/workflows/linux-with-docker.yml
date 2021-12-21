@@ -76,7 +76,7 @@ jobs:
           file_glob: true
           overwrite: true
           tag: "refs/tags/${{ github.event.inputs.tag }}"
-docker:
+  docker:
     name: Build Docker Image
     runs-on: ubuntu-latest
     needs: [ linux ]
