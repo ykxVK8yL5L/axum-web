@@ -112,7 +112,7 @@ where
         let mime = mime_guess::from_path(path).first_or_octet_stream();
         Response::builder().header(header::CONTENT_TYPE, mime.as_ref()).body(body).unwrap()
       }
-      None => None => {
+      None => {
         error!("{} 404 not found ",path.as_str());
         Response::builder().status(StatusCode::NOT_FOUND).body(boxed(Full::from("<h1>404</h1>"))).unwrap()
       }
