@@ -97,20 +97,22 @@ struct Asset;
 
 pub struct StaticFile<T>(pub T);
 
+#[derive(Template)]
+#[template(path = "404.html")]
+struct NotFoundTemplate {
+}
+
 impl<T> IntoResponse for StaticFile<T>
 where
   T: Into<String>,
 {
   fn into_response(self) -> Response {
-      
     let mut path = self.0.into();
     let fullpath = path.clone();
     if path.starts_with("assets/") {
       path = path.replace("assets/", "");
     }
-      
-      
-    let path = self.0.into();
+
     match Asset::get(path.as_str()) {
       Some(content) => {
         let body = boxed(Full::from(content.data));
