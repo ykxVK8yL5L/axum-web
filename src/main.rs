@@ -1,3 +1,5 @@
+use std::net::{SocketAddr, ToSocketAddrs};
+use std::{env};
 use askama::Template;
 use axum::{
     body::{boxed,self, Full},
@@ -8,31 +10,44 @@ use axum::{
     Router,
     handler::Handler,
 };
-use std::net::SocketAddr;
 use tower_http::{services::ServeDir, trace::TraceLayer};
 use mime_guess;
 use rust_embed::RustEmbed;
+use structopt::StructOpt;
+use tracing::{info, Level};
+use tracing_subscriber::FmtSubscriber;
 
-
-
+#[derive(StructOpt, Debug)]
+#[structopt(name = "axum-web")]
+struct Opt {
+    /// Listen host
+    #[structopt(long, env = "HOST", default_value = "0.0.0.0")]
+    host: String,
+    /// Listen port
+    #[structopt(short, env = "PORT", long, default_value = "10099")]
+    port: u16,
+}
 
 #[tokio::main]
 async fn main() {
-    // Set the RUST_LOG, if it hasn't been explicitly defined
-    if std::env::var_os("RUST_LOG").is_none() {
-        std::env::set_var("RUST_LOG", "example_templates=debug")
+    if env::var("RUST_LOG").is_err() {
+      env::set_var("RUST_LOG", "axum-web=info");
     }
-    tracing_subscriber::fmt::init();
+    let subscriber = FmtSubscriber::builder().with_max_level(Level::TRACE).finish();
+    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
     let app = Router::new()
         .route("/greet/:name", get(greet))
         .route("/assets/", static_handler.into_service())
         .fallback(static_handler.into_service())
         .route("/", get(root));
-
     // run it
-    let addr = SocketAddr::from(([0, 0, 0, 0], 10099));
-    tracing::debug!("listening on {}", addr);
-    println!("在浏览器中打开: http://{}", addr);
+    let opt = Opt::from_args();
+    let addr = (opt.host, opt.port)
+              .to_socket_addrs()
+              .unwrap()
+              .next()
+              .unwrap();
+    info!("请在浏览器上打开http://:{:?}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
         .await
@@ -43,14 +58,9 @@ async fn greet(extract::Path(name): extract::Path<String>) -> impl IntoResponse 
     let template = HelloTemplate { name };
     HtmlTemplate(template)
 }
-
-
 async fn root() -> &'static str {
     "Hello, World!"
 }
-
-
-
 #[derive(Template)]
 #[template(path = "index.html")]
 struct HelloTemplate {
@@ -58,7 +68,6 @@ struct HelloTemplate {
 }
 
 struct HtmlTemplate<T>(T);
-
 impl<T> IntoResponse for HtmlTemplate<T>
 where
     T: Template,
@@ -76,7 +85,6 @@ where
         }
     }
 }
-
 // static_handler is a handler that serves static files from the
 async fn static_handler(uri: Uri) -> impl IntoResponse {
     let mut path = uri.path().trim_start_matches('/').to_string();
