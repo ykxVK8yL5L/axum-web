@@ -1,5 +1,5 @@
 use std::net::{SocketAddr, ToSocketAddrs};
-use std::{env};
+use std::{env,time::Duration};
 use askama::Template;
 use axum::{
     body::{boxed,self, Full},
@@ -54,6 +54,7 @@ async fn main() {
         .unwrap();
 }
 
+
 async fn root() -> &'static str {
     "Hello, World!"
 }
@@ -90,16 +91,22 @@ async fn static_handler(uri: Uri) -> impl IntoResponse {
     let mut path = uri.path().trim_start_matches('/').to_string();
     StaticFile(path)
 }
-
+  
 #[derive(RustEmbed)]
 #[folder = "public/assets"]
 struct Asset;
 
 pub struct StaticFile<T>(pub T);
+ 
+
+
+
 
 #[derive(Template)]
-#[template(path = "404.html")]
-struct NotFoundTemplate {
+#[template(path = "error.html")]
+struct ErrorTemplate {
+  label: String,
+  message:String,
 }
 
 impl<T> IntoResponse for StaticFile<T>
@@ -112,7 +119,6 @@ where
     if path.starts_with("assets/") {
       path = path.replace("assets/", "");
     }
-
     match Asset::get(path.as_str()) {
       Some(content) => {
         let body = boxed(Full::from(content.data));
@@ -121,9 +127,9 @@ where
       }
       None => {
         error!("{} 404 not found ",fullpath.as_str());
-        let template = NotFoundTemplate {};
-        HtmlTemplate(template).into_response()
         //Response::builder().status(StatusCode::NOT_FOUND).body(boxed(Full::from("<h1>404</h1>"))).unwrap()
+        let template = ErrorTemplate {label:"404 Not Found".to_string(),message:"没有找到相关的页面信息，请确保路径正确！".to_string()};
+        HtmlTemplate(template).into_response()
       }
     }
   }
