@@ -88,9 +88,6 @@ where
 // static_handler is a handler that serves static files from the
 async fn static_handler(uri: Uri) -> impl IntoResponse {
     let mut path = uri.path().trim_start_matches('/').to_string();
-    if path.starts_with("assets/") {
-      path = path.replace("assets/", "");
-    }
     StaticFile(path)
 }
 
@@ -105,6 +102,14 @@ where
   T: Into<String>,
 {
   fn into_response(self) -> Response {
+      
+    let mut path = self.0.into();
+    let fullpath = path.clone();
+    if path.starts_with("assets/") {
+      path = path.replace("assets/", "");
+    }
+      
+      
     let path = self.0.into();
     match Asset::get(path.as_str()) {
       Some(content) => {
@@ -113,8 +118,10 @@ where
         Response::builder().header(header::CONTENT_TYPE, mime.as_ref()).body(body).unwrap()
       }
       None => {
-        error!("{} 404 not found ",path.as_str());
-        Response::builder().status(StatusCode::NOT_FOUND).body(boxed(Full::from("<h1>404</h1>"))).unwrap()
+        error!("{} 404 not found ",fullpath.as_str());
+        let template = NotFoundTemplate {};
+        HtmlTemplate(template).into_response()
+        //Response::builder().status(StatusCode::NOT_FOUND).body(boxed(Full::from("<h1>404</h1>"))).unwrap()
       }
     }
   }
