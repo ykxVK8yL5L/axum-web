@@ -33,7 +33,7 @@ async fn main() {
     if env::var("RUST_LOG").is_err() {
       env::set_var("RUST_LOG", "axum-web=info");
     }
-    let subscriber = FmtSubscriber::builder().with_max_level(Level::DEBUG).finish();
+    let subscriber = FmtSubscriber::builder().with_max_level(Level::INFO).finish();
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
     let app = Router::new()
         .route("/greet/:name", get(greet))
@@ -112,7 +112,10 @@ where
         let mime = mime_guess::from_path(path).first_or_octet_stream();
         Response::builder().header(header::CONTENT_TYPE, mime.as_ref()).body(body).unwrap()
       }
-      None => Response::builder().status(StatusCode::NOT_FOUND).body(boxed(Full::from("404"))).unwrap(),
+      None => None => {
+        error!("{} 404 not found ",path.as_str());
+        Response::builder().status(StatusCode::NOT_FOUND).body(boxed(Full::from("<h1>404</h1>"))).unwrap()
+      }
     }
   }
 }
