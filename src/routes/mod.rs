@@ -12,12 +12,11 @@ use mime_guess;
 use tracing::{error};
 use crate::utils::template::{HtmlTemplate,ErrorTemplate};
 use crate::controllers::{home};
-use crate::db;
-
+use crate::{db,config::env::ServerConfig};
 pub mod web;
 
-pub fn create_router()-> Router{
-    let pool = db::init_db();
+pub fn create_router(config:&ServerConfig)-> Router{
+    let pool = db::init_db(config.database.to_string());
     let app = Router::new()
     .route("/", get(home))
     .route("/signup", get(home))
