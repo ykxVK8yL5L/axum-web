@@ -1,6 +1,7 @@
 use axum::{
     body::{boxed,Full},
     routing::{get},
+    AddExtensionLayer,
     Router,
     http::{header, Uri},
     response::{IntoResponse, Response},
@@ -10,16 +11,20 @@ use rust_embed::RustEmbed;
 use mime_guess;
 use tracing::{error};
 use crate::utils::template::{HtmlTemplate,ErrorTemplate};
-use crate::controllers::home;
+use crate::controllers::{home};
+use crate::db;
 
 pub mod web;
 
 pub fn create_router()-> Router{
+    let pool = db::init_db();
     let app = Router::new()
     .route("/", get(home))
+    .route("/signup", get(home))
     .route("/assets/", static_handler.into_service())
     .fallback(static_handler.into_service())
-    .nest("/web", web::create_web_router());
+    .nest("/web", web::create_web_router())
+    .layer(AddExtensionLayer::new(pool));
     app
 }
 
@@ -45,6 +50,9 @@ where
     let fullpath = path.clone();
     if path.starts_with("assets/") {
       path = path.replace("assets/", "");
+    }
+    if path.starts_with("favicon.ico") {
+      path = "favicon.ico".to_string();
     }
     match Asset::get(path.as_str()) {
       Some(content) => {
