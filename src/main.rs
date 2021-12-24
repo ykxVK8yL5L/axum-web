@@ -1,3 +1,9 @@
+#![allow(unused_must_use)]
+#[macro_use]
+extern crate diesel;
+extern crate serde_derive;
+extern crate serde_json;
+
 use std::net::{ToSocketAddrs};
 use std::{env};
 use structopt::StructOpt;
@@ -8,6 +14,11 @@ mod config;
 mod utils;
 mod controllers;
 mod routes;
+mod db;
+mod constants;
+mod models;
+mod schema;
+
 
 #[tokio::main]
 async fn main() {
@@ -17,6 +28,8 @@ async fn main() {
     let subscriber = FmtSubscriber::builder().with_max_level(Level::INFO).finish();
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
     let app = routes::create_router();
+
+  
     // run it
     let config = config::env::ServerConfig::from_args();
     let addr = (config.host, config.port)
