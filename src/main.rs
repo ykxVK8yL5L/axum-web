@@ -1,70 +1,44 @@
-use axum::{
-    body::{boxed,Full},
-    routing::{get},
-    AddExtensionLayer,
-    Router,
-    http::{header, Uri},
-    response::{IntoResponse, Response},
-    handler::Handler,
-};
-use rust_embed::RustEmbed;
-use mime_guess;
-use tracing::{error};
-use crate::utils::template::{HtmlTemplate,ErrorTemplate};
-use crate::controllers::{home};
-use crate::{db,config::env::ServerConfig};
-pub mod web;
+#![allow(unused_must_use)]
+#[macro_use]
+extern crate diesel;
+extern crate serde_derive;
+extern crate serde_json;
 
-pub fn create_router(config:&ServerConfig)-> Router{
-    let pool = db::init_db(config.database.to_string());
-    let app = Router::new()
-    .route("/", get(home))
-    .route("/signup", get(home))
-    .route("/assets/", static_handler.into_service())
-    .fallback(static_handler.into_service())
-    .nest("/web", web::create_web_router())
-    .layer(AddExtensionLayer::new(pool));
-    app
+use std::net::{ToSocketAddrs};
+use std::{env};
+use structopt::StructOpt;
+use tracing::{info,Level};
+use tracing_subscriber::FmtSubscriber;
+
+mod config;
+mod utils;
+mod controllers;
+mod routes;
+mod db;
+mod constants;
+mod models;
+mod schema;
+
+
+#[tokio::main]
+async fn main() {
+    if env::var("RUST_LOG").is_err() {
+      env::set_var("RUST_LOG", "axum-web=info");
+    }
+    let subscriber = FmtSubscriber::builder().with_max_level(Level::INFO).finish();
+    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
+    // run it
+    let config = config::env::ServerConfig::from_args();
+    let app = routes::create_router(&config);
+    let addr = (config.host, config.port)
+              .to_socket_addrs()
+              .unwrap()
+              .next()
+              .unwrap();
+    info!("请在浏览器上打开http://:{:?}", addr);
+    axum::Server::bind(&addr)
+        .serve(app.into_make_service())
+        .await
+        .unwrap();
 }
 
-
-
-
-// static_handler is a handler that serves static files from the
-async fn static_handler(uri: Uri) -> impl IntoResponse {
-    let mut path = uri.path().trim_start_matches('/').to_string();
-    StaticFile(path)
-}
-  
-#[derive(RustEmbed)]
-#[folder = "public/assets"]
-struct Asset;
-pub struct StaticFile<T>(pub T);
-impl<T> IntoResponse for StaticFile<T>
-where
-  T: Into<String>,
-{
-  fn into_response(self) -> Response {
-    let mut path = self.0.into();
-    let fullpath = path.clone();
-    if path.starts_with("assets/") {
-      path = path.replace("assets/", "");
-    }
-    if path.starts_with("favicon.ico") {
-      path = "favicon.ico".to_string();
-    }
-    match Asset::get(path.as_str()) {
-      Some(content) => {
-        let body = boxed(Full::from(content.data));
-        let mime = mime_guess::from_path(path).first_or_octet_stream();
-        Response::builder().header(header::CONTENT_TYPE, mime.as_ref()).body(body).unwrap()
-      }
-      None => {
-        error!("{} 404 not found ",fullpath.as_str());
-        //Response::builder().status(StatusCode::NOT_FOUND).body(boxed(Full::from("<h1>404</h1>"))).unwrap()
-        let errortemplate = ErrorTemplate {label:"404 Not Found".to_string(),message:"没有找到相关的页面信息，请确保路径正确！".to_string()};
-        HtmlTemplate(errortemplate).into_response()
-      }
-    }
-  }
-}
