@@ -5,7 +5,8 @@
 * 静态文件  
 * 模板  
 * 打包静态文件至可执行文件  
-* 采用diesel做orm 数据库用的sqlite3    
+* 采用diesel做orm 数据库用的sqlite3  
+* 已具备基础的JWT认证:注册、登陆、退出。采用Token认证  
 
 命令行格式   
 ```
