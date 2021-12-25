@@ -1,8 +1,11 @@
 #![allow(unused_must_use)]
 #[macro_use]
 extern crate diesel;
+#[macro_use]
 extern crate serde_derive;
 extern crate serde_json;
+#[macro_use]
+extern crate diesel_migrations;
 
 use std::net::{ToSocketAddrs};
 use std::{env};
@@ -18,6 +21,7 @@ mod db;
 mod constants;
 mod models;
 mod schema;
+mod middlewares;
 
 
 #[tokio::main]

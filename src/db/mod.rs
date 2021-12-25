@@ -4,6 +4,10 @@ use diesel::r2d2::{self, ConnectionManager};
 pub type Connection = SqliteConnection;
 pub type Pool = r2d2::Pool<ConnectionManager<SqliteConnection>>;
 
+
+embed_migrations!();
+
+
 pub fn init_db(dbname:String) -> Pool {
     dotenv::dotenv().ok();
     // set up database connection pool
@@ -12,5 +16,7 @@ pub fn init_db(dbname:String) -> Pool {
     let pool = r2d2::Pool::builder()
         .build(manager)
         .expect("Failed to create pool.");
+    embedded_migrations::run(&pool.get().expect("Failed to migrate."));
+    
     pool
 }
