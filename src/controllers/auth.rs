@@ -1,7 +1,8 @@
 use axum::{
+    body::Body,
     extract::Extension,
     Json,
-    http::StatusCode,
+    http::{Request, StatusCode},
 };
 use crate::{
   db::Pool,
@@ -10,6 +11,7 @@ use crate::{
     response::ResponseBody,
     user_token::UserToken,
   },
+  utils::token_utils,
   constants,
 };
 
@@ -66,4 +68,33 @@ pub async fn login(Json(login_dto): Json<LoginDTO>,Extension(pool): Extension<Po
         Ok(response)
       } 
   }
+}
+
+pub async fn logout(req: Request<Body>) -> Result<String, (StatusCode, String)> {
+  let pool = req.extensions().get::<Pool>().unwrap();
+  if let Some(authen_header) = req.headers().get(constants::AUTHORIZATION) {
+    if let Ok(authen_str) = authen_header.to_str() {
+        if authen_str.to_lowercase().starts_with("bearer") {
+            let token = authen_str[6..authen_str.len()].trim();
+            if let Ok(token_data) = token_utils::decode_token(token.to_string()) {
+                if let Ok(username) = token_utils::verify_token(&token_data, &pool) {
+                    if let Ok(user) = User::find_user_by_username(&username, &pool.get().unwrap()) {
+                        User::logout(user.id, &pool.get().unwrap());
+                        let response_body = ResponseBody::new(constants::MESSAGE_LOGOUT_SUCCESS, constants::EMPTY);
+                        let response = serde_json::to_string(&response_body).unwrap();
+                        return Ok(response);
+                    }
+                }
+            }
+        }
+    }
+    let response_body = ResponseBody::new(constants::MESSAGE_LOGOUT_FAILED, constants::EMPTY);
+    let response = serde_json::to_string(&response_body).unwrap();
+    Ok(response)
+  } else {
+    let response_body =ResponseBody::new(constants::MESSAGE_TOKEN_MISSING, constants::EMPTY);
+    let response = serde_json::to_string(&response_body).unwrap();
+    Ok(response)
+  }
+
 }
