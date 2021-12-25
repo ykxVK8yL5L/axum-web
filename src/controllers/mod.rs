@@ -5,9 +5,9 @@ use axum::{
 use crate::{
   db::Pool,
   models,
-  constants,
 };
 pub mod index;
+pub mod auth;
 
 
 

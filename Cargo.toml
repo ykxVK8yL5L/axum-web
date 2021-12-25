@@ -8,14 +8,15 @@ edition = "2021"
 [dependencies]
 axum = { git = "https://github.com/tokio-rs/axum" }
 tokio = { version = "1.0", features = ["full"] }
-tower-http = { version = "0.2.0", features = ["fs", "trace"] }
+tower = { version = "0.4", features = ["util", "timeout"] }
+tower-http = { version = "0.1", features = ["add-extension", "trace"] }
+futures = "0.3.19"
 askama = "0.10"
 mime_guess = "2.0.3"
 rust-embed="6.3.0"
 structopt = "0.3"
 tracing = "0.1.29"
 tracing-subscriber = { version="0.3.3", features = ["env-filter"] }
-
 serde = { version = "1.0", features = ["derive"] }
 serde_derive = "1.0"
 serde_json = "1.0"
@@ -23,6 +24,7 @@ dotenv = "0.15.0"
 libsqlite3-sys = { version = "*", features = ["bundled"] }
 jsonwebtoken = "7.2.0"
 bcrypt = "0.9.0"
+diesel_migrations = "1.4.0"
 
 [dependencies.diesel]
 version = "1.4.8"

@@ -1,29 +1,52 @@
 use axum::{
+    error_handling::HandleErrorLayer,
     body::{boxed,Full},
     routing::{get},
-    AddExtensionLayer,
     Router,
-    http::{header, Uri},
+    http::{header, Uri,StatusCode},
     response::{IntoResponse, Response},
     handler::Handler,
 };
+use std::time::Duration;
 use rust_embed::RustEmbed;
 use mime_guess;
 use tracing::{error};
 use crate::utils::template::{HtmlTemplate,ErrorTemplate};
 use crate::controllers::{home};
 use crate::{db,config::env::ServerConfig};
+use tower::{BoxError, ServiceBuilder};
+use tower_http::{add_extension::AddExtensionLayer, trace::TraceLayer};
+
+
 pub mod web;
+pub mod auth;
+pub mod api;
 
 pub fn create_router(config:&ServerConfig)-> Router{
     let pool = db::init_db(config.database.to_string());
     let app = Router::new()
     .route("/", get(home))
-    .route("/signup", get(home))
     .route("/assets/", static_handler.into_service())
     .fallback(static_handler.into_service())
     .nest("/web", web::create_web_router())
-    .layer(AddExtensionLayer::new(pool));
+    .nest("/api", api::create_api_router())
+    .nest("/auth", auth::create_auth_router())
+    .layer(
+      ServiceBuilder::new()
+      .layer(HandleErrorLayer::new(|error: BoxError| async move {
+          if error.is::<tower::timeout::error::Elapsed>() {
+              Ok(StatusCode::REQUEST_TIMEOUT)
+          } else {
+              Err((
+                  StatusCode::INTERNAL_SERVER_ERROR,
+                  format!("Unhandled internal error: {}", error),
+              ))
+          }
+      }))
+      .timeout(Duration::from_secs(20))
+      .layer(TraceLayer::new_for_http())
+      .into_inner(),
+    ).layer(AddExtensionLayer::new(pool));
     app
 }
 

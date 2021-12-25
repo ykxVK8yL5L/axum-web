@@ -1,6 +1,3 @@
-use axum::{
-    extract::Extension,
-};
 use crate::{
     db::Pool,
     models::{
@@ -16,7 +13,7 @@ pub fn decode_token(token: String) -> jsonwebtoken::errors::Result<TokenData<Use
     jsonwebtoken::decode::<UserToken>(&token, &DecodingKey::from_secret(&KEY), &Validation::default())
 }
 
-pub fn verify_token(token_data: &TokenData<UserToken>, pool: &Extension<Pool>) -> Result<String, String> {
+pub fn verify_token(token_data: &TokenData<UserToken>, pool: &Pool) -> Result<String, String> {
     if User::is_valid_login_session(&token_data.claims, &pool.get().unwrap()) {
         Ok(token_data.claims.user.to_string())
     } else {
