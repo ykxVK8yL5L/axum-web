@@ -26,8 +26,8 @@ jsonwebtoken = "7.2.0"
 bcrypt = "0.9.0"
 diesel_migrations = "1.4.0"
 hyper = { version = "0.14.11", features = ["server"] }
-webdav-handler = { version = "0.2.0", default-features = false, features = ["hyper"] }
-
+#webdav-handler = { version = "0.2.0", default-features = false, features = ["hyper"] }
+webdav-handler = { git = "https://github.com/messense/webdav-handler-rs.git", branch = "aliyundrive" }
 
 
 [dependencies.diesel]
