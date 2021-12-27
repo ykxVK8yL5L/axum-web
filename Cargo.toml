@@ -28,6 +28,10 @@ diesel_migrations = "1.4.0"
 hyper = { version = "0.14.11", features = ["server"] }
 webdav-handler = { version = "0.2.0", default-features = false, features = ["hyper"] }
 
+[patch.crates-io]
+webdav-handler = { git = "https://github.com/messense/webdav-handler-rs.git", branch = "aliyundrive" }
+
+
 [dependencies.diesel]
 version = "1.4.8"
 features = ["sqlite", "r2d2", "chrono"]
