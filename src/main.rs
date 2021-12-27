@@ -7,11 +7,15 @@ extern crate serde_json;
 #[macro_use]
 extern crate diesel_migrations;
 
-use std::net::{ToSocketAddrs};
-use std::{env};
+use std::{
+  net::{ToSocketAddrs},
+  convert::Infallible,
+  env
+};
 use structopt::StructOpt;
 use tracing::{info,Level};
 use tracing_subscriber::FmtSubscriber;
+use webdav_handler::{fakels::FakeLs, localfs::LocalFs, DavHandler};
 
 mod config;
 mod utils;
@@ -31,18 +35,54 @@ async fn main() {
     }
     let subscriber = FmtSubscriber::builder().with_max_level(Level::INFO).finish();
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
-    // run it
     let config = config::env::ServerConfig::from_args();
-    let app = routes::create_router(&config);
-    let addr = (config.host, config.port)
-              .to_socket_addrs()
-              .unwrap()
-              .next()
-              .unwrap();
-    info!("请在浏览器上打开http://:{:?}", addr);
-    axum::Server::bind(&addr)
-        .serve(app.into_make_service())
-        .await
-        .unwrap();
-}
+    let wevdav_app = async {
+        let dir = "/tmp";
+        let webdav_config = config.clone();
+        let addr = (webdav_config.host, webdav_config.webdav_port)
+                    .to_socket_addrs()
+                    .unwrap()
+                    .next()
+                    .unwrap();
+        let dav_server = DavHandler::builder()
+            .filesystem(LocalFs::new(dir, false, false, false))
+            .locksystem(FakeLs::new())
+            .autoindex(true)
+            .build_handler();
+    
+        let make_service = hyper::service::make_service_fn(move |_| {
+            let dav_server = dav_server.clone();
+            async move {
+                let func = move |req| {
+                    let dav_server = dav_server.clone();
+                    async move { Ok::<_, Infallible>(dav_server.handle(req).await) }
+                };
+                Ok::<_, Infallible>(hyper::service::service_fn(func))
+            }
+        });
+    
+        info!("Webdav服务端口:ttp://:{:?}", addr);
+        let _ = hyper::Server::bind(&addr)
+            .serve(make_service)
+            .await
+            .map_err(|e| eprintln!("server error: {}", e));
+    };
 
+    let web_app = async {
+        let web_config = config.clone();
+        let app = routes::create_router(&web_config);
+        let addr = (web_config.host, web_config.port)
+                    .to_socket_addrs()
+                    .unwrap()
+                    .next()
+                    .unwrap();
+        info!("请在浏览器上打开http://:{:?}", addr);
+        axum::Server::bind(&addr)
+            .serve(app.into_make_service())
+            .await
+            .unwrap();
+    };
+
+    tokio::join!(wevdav_app, web_app);
+
+}
