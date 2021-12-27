@@ -1,7 +1,7 @@
 use structopt::StructOpt;
 
 
-#[derive(StructOpt, Debug)]
+#[derive(StructOpt, Debug, Clone)]
 #[structopt(name = "axum-web")]
 pub struct ServerConfig {
     /// Listen host
