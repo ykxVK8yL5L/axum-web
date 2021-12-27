@@ -10,6 +10,9 @@ pub struct ServerConfig {
     /// Listen port
     #[structopt(short, env = "PORT", long, default_value = "10099")]
     pub port: u16,
+    /// Listen webdav port
+    #[structopt(short, env = "WEBDAV_PORT", long, default_value = "10098")]
+    pub webdav_port: u16,
     /// Database name
     #[structopt(short, env = "DATABASE", long, default_value = "axum-web.db")]
     pub database: String,
