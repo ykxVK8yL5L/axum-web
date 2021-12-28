@@ -1,0 +1,273 @@
+
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <!-- 必须的 meta 标签 -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+ <!-- Bootstrap CSS -->
+ <link rel="stylesheet" href="/assets/css/bootstrap.min.css" />
+ <link rel="stylesheet" href="/assets/css/APlayer.min.css" />
+    <title>音乐下载</title>
+  </head>
+  <body style="padding-top:20px;">
+    <div class="container" id="app">
+      <div id="settingdiv" style="display:none;">
+        <div class="card">
+            <div class="card-body">
+            <form class="form" role="form">
+                    <div class="form-group row">
+                        <label for="aria2Url" class="col-sm-2 control-label">Aria2地址</label>
+                        <div class="col-sm-10">
+                                <input id="aria2Url" v-model="aria2Url" class="form-control" placeholder="Aria2地址"/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                    <label for="aria2Token" class="col-sm-2 control-label">Aria2 Token</label>
+                        <div class="col-sm-10">
+                                <input id="aria2Token" v-model="aria2Token" class="form-control" placeholder="Aria2 Token"/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                      <label for="aria2Dir" class="col-sm-2 control-label">文件保存目录</label>
+                          <div class="col-sm-10">
+                                  <input id="aria2Dir" v-model="aria2Dir" class="form-control" placeholder="文件保存目录"/>
+                          </div>
+                      </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+      <div class="input-group mb-3">
+        <div class="input-group-prepend">
+          <button type="button" class="btn btn-primary" @click="setting">设置</button>
+        </div>
+        <div class="input-group-prepend">
+          <select class="form-select" aria-label="Default select example" v-model="type">
+            <option v-for="item in types" :value="item.value">
+            ${item.name}
+            </option>
+          </select>
+        </div>
+        <input type="text" class="form-control" aria-label="Amount (to the nearest dollar)" v-model="kw" placeholder="关键词">
+        <div class="input-group-append">
+        <button type="button" class="btn btn-primary" @click="search">搜索</button>
+        </div>
+      </div>
+
+      <div id="aplayer"></div>
+      <div class="alert alert-success">
+        <button type="button" class="btn btn-primary float-left" @click="nextpage">下一页</button>
+        <button type="button" class="btn btn-primary float-right" @click="download">Aria2下载</button>
+        <button type="button" class="btn btn-primary float-right" @click="getUrl">地址</button>
+        <button type="button" class="btn btn-primary float-right" @click="downloadLocal">下载</button>
+        <div style="clear:both"></div>
+      </div>
+    </div>
+    <script src="/assets/js/jquery-3.6.0.min.js"></script>
+    <script src="/assets/layer/layer.js"></script>
+    <script src="/assets/js/vue.js"></script>
+    <script src="/assets/js/freemp3.js"></script>
+    <script src="/assets/js/axios.min.js"></script>
+    <script src="/assets/js/APlayer.min.js"></script>
+    <script type="application/javascript" src="/assets/js/vue-clipboard.min.js"></script>
+  <script type="text/javascript">
+    var app = new Vue({
+      el: '#app',
+      delimiters:['${','}'],
+      data: {
+        aria2Url:'http://127.0.0.1:6800/jsonrpc',
+        aria2Token:'123456',
+        aria2Dir:'/downloads',
+        message: 'MyfreeMp3',
+        kw:'',
+        types:[ //类别选择数据或者从后台获取数据
+          {name:"A",value:"YQB"},
+          {name:"B",value:"migu"},
+          {name:"C",value:"YQD"},
+        ],
+        type:"YQB",
+        page:1,
+        list:[],
+        player:null,
+      },
+      
+      mounted: function () {
+        this.player = new APlayer({
+            container: document.getElementById('aplayer'),
+            lrcType: 3,
+            audio: []
+        });
+        if (localStorage.aria2Url) {
+          this.aria2Url = localStorage.aria2Url;
+        }
+        if (localStorage.aria2Token) {
+          this.aria2Token = localStorage.aria2Token;
+        }
+      },
+
+      watch: {
+        aria2Url(newName) {
+          localStorage.aria2Url = newName;
+        },
+        aria2Token(newName) {
+          localStorage.aria2Token = newName;
+        },
+      },
+
+      methods:{
+        setting:function(){
+          var index=layer.open({
+            type: 1,
+            shadeClose: true,
+            content: $('#settingdiv')
+          });
+          layer.full(index);
+        },
+        search:function(){
+          var that = this;
+          that.page=1;
+          that.list=[];
+          that.player.list.clear();
+          var query="text="+that.kw+"&page="+that.page+"&type="+that.type;
+          var encodequery = encode(query);
+          var data = getQueryVariable(encodequery,'data');
+          var version = getQueryVariable(encodequery,'v');
+          axios.post('/musicquery', {
+            data: data,
+            v: version
+          })
+          .then(function (response) {
+            if(response.data.code=200){
+              var songs = [];
+              $.each(response.data.data.list, function( index, value ) {
+                //that.list.push(value);
+                songs.push({
+                    name: value.name,
+                    artist: value.artist,
+                    url: value.url_128,
+                    cover: value.cover,
+                    lrc:   "/musiclrcquery?url="+encodeURIComponent(value.lrc),
+                    theme: '#ebd0c2'
+                })
+                that.list.push(value);
+              });
+              that.player.list.add(songs);
+            }
+            //console.log(response.data);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+        },
+        nextpage:function(){
+          var that = this;
+          that.page+=1;
+          var query="text="+that.kw+"&page="+that.page+"&type="+that.type;
+          var encodequery = encode(query);
+          var data = getQueryVariable(encodequery,'data');
+          var version = getQueryVariable(encodequery,'v');
+          axios.post('/musicquery', {
+            data: data,
+            v: version
+          })
+          .then(function (response) {
+            if(response.data.code=200){
+              var songs = [];
+              $.each(response.data.data.list, function( index, value ) {
+                //that.list.push(value);
+                songs.push({
+                    name: value.name,
+                    artist: value.artist,
+                    url: value.url_128,
+                    cover: value.cover,
+                    theme: '#ebd0c2'
+                })
+                that.list.push(value);
+              });
+              that.player.list.add(songs);
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+        },
+        getUrl:function(){
+          var index = this.player.list.index;
+          var songlist = this.player.list;
+          var name = songlist.audios[index].name;
+          var artist = songlist.audios[index].artist;
+          var url = songlist.audios[index].url;
+          layer.open({
+            type: 1, 
+            content: '<a href="'+url+'" targe="_blank">'+url+'</a>' //这里content是一个普通的String
+          });
+        },
+        download:function(){
+          var index = this.player.list.index;
+          var songlist = this.player.list;
+          var name = songlist.audios[index].name;
+          var artist = songlist.audios[index].artist;
+          var url = songlist.audios[index].url;
+          this.aria2(url,name+'-'+artist+'.mp3');
+        },
+        downloadLocal:function(){
+          var that = this;
+          var index = this.player.list.index;
+          var songlist = this.player.list;
+          var song = this.list[index];
+          var data = JSON.stringify(song);
+          var config = {
+            method: 'post',
+            url: '/musicdownload',
+            headers: { 
+              'Content-Type': 'application/json'
+            },
+            data : data
+          };
+          axios(config)
+            .then(function (response) {
+              layer.msg(response.data.data);
+              console.log(response.data);
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+        },
+        aria2:function(fileurl,filename){
+          var url = this.aria2Url;
+          var data = {"jsonrpc": "2.0", "id": "qwer", "method": "aria2.addUri", "params": ["token:"+this.aria2Token,[fileurl],{"out":filename ,"dir":this.aria2Dir}]}
+          $.ajax({
+              url: url,
+              data: JSON.stringify(data),
+              type: "post",
+              //async: false,//false为同步
+              dataType: "json",
+              success: function(obj) {
+                  layer.alert('歌曲下载成功', {icon: 6});
+              }
+          });
+        }
+        
+      }
+    })
+
+  function getQueryVariable(query,variable) {
+    var query = query;
+    var vars = query.split('&');
+    for (var i = 0; i < vars.length; i++) {
+        var pair = vars[i].split('=');
+        if (decodeURIComponent(pair[0]) == variable) {
+            return decodeURIComponent(pair[1]);
+        }
+    }
+  }
+  </script>
+
+
+
+       
+  </body>
+</html>
