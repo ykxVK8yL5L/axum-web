@@ -28,7 +28,7 @@ jobs:
       env:
         CFLAGS_armv7_unknown_linux_musleabihf: '-mfpu=vfpv3-d16'
     steps:
-      - run: sudo apt-get install -y openssl
+      - run: sudo apt-get install -y pkg-config libssl-dev
       - uses: actions/checkout@v2
       - name: Build wheels - manylinux
         uses: messense/maturin-action@main
