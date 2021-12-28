@@ -28,6 +28,7 @@ jobs:
       env:
         CFLAGS_armv7_unknown_linux_musleabihf: '-mfpu=vfpv3-d16'
     steps:
+      - run:  sudo apt install pkg-config
       - uses: actions/checkout@v2
       - name: Build wheels - manylinux
         uses: messense/maturin-action@main
