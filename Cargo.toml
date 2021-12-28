@@ -12,7 +12,7 @@ webdav-handler = { git = "https://github.com/sj6219/webdav-handler-rs.git", bran
 tokio = { version = "1.15.0", features = ["full"] }
 tower = { version = "0.4", features = ["util", "timeout"] }
 tower-http = { version = "0.1", features = ["fs","add-extension", "trace"] }
-reqwest = { version = "0.11", features = ["json","blocking"] }
+reqwest = { version = "0.11", default-features=false,features = ["json","blocking"] }
 futures = "0.3.19"
 askama = "0.10"
 mime_guess = "2.0.3"
@@ -31,7 +31,7 @@ diesel_migrations = "1.4.0"
 hyper = { version = "0.14.11", features = ["server"] }
 #webdav-handler = { version = "0.2.0", default-features = false, features = ["hyper"] }
 download_rs = {version="0.2.0",features=["async_download"]}
-openssl = { version = "0.10.32", features = ["vendored"] }
+#openssl = { version = "0.10.32", features = ["vendored"] }
 
 [dependencies.diesel]
 version = "1.4.8"
