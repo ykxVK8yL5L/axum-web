@@ -6,16 +6,21 @@ extern crate serde_derive;
 extern crate serde_json;
 #[macro_use]
 extern crate diesel_migrations;
+#[macro_use]
+extern crate lazy_static;
+
 
 use std::{
   net::{ToSocketAddrs},
   convert::Infallible,
+  fs,
   env
 };
 use structopt::StructOpt;
 use tracing::{info,Level};
 use tracing_subscriber::FmtSubscriber;
-use webdav_handler::{fakels::FakeLs, localfs::LocalFs, DavHandler};
+use webdav_handler::{fakels::FakeLs, localfs::LocalFs,DavHandler};
+
 
 mod config;
 mod utils;
@@ -37,15 +42,20 @@ async fn main() {
     tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
     let config = config::env::ServerConfig::from_args();
     let wevdav_app = async {
-        let dir = "/tmp";
         let webdav_config = config.clone();
+        let dir = webdav_config.root;
+        fs::create_dir_all(format!("{}/music-data/mp3",&dir.to_string()));
+        fs::create_dir_all(format!("{}/music-data/cover",&dir.to_string()));
+        fs::create_dir_all(format!("{}/music-data/lrc",&dir.to_string()));
+        let webdav_root = format!("{}/music-data",&dir.to_string());
+
         let addr = (webdav_config.host, webdav_config.webdav_port)
                     .to_socket_addrs()
                     .unwrap()
                     .next()
                     .unwrap();
         let dav_server = DavHandler::builder()
-            .filesystem(LocalFs::new(dir, false, false, false))
+            .filesystem(LocalFs::new(webdav_root, false, false, false))
             .locksystem(FakeLs::new())
             .autoindex(true)
             .build_handler();
@@ -60,12 +70,13 @@ async fn main() {
                 Ok::<_, Infallible>(hyper::service::service_fn(func))
             }
         });
-    
+
         info!("Webdav服务端口:ttp://:{:?}", addr);
         let _ = hyper::Server::bind(&addr)
             .serve(make_service)
             .await
             .map_err(|e| eprintln!("server error: {}", e));
+
     };
 
     let web_app = async {
@@ -86,3 +97,4 @@ async fn main() {
     tokio::join!(wevdav_app, web_app);
 
 }
+
