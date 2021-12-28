@@ -1,5 +1,6 @@
 // Messages
 pub const MESSAGE_OK: &str = "ok";
+pub const MESSAGE_FAIL: &str = "fail";
 pub const MESSAGE_CAN_NOT_FETCH_DATA: &str = "Can not fetch data";
 pub const MESSAGE_CAN_NOT_INSERT_DATA: &str = "Can not insert data";
 pub const MESSAGE_CAN_NOT_UPDATE_DATA: &str = "Can not update data";
