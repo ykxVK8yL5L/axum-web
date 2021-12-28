@@ -29,10 +29,6 @@ jobs:
         CFLAGS_armv7_unknown_linux_musleabihf: '-mfpu=vfpv3-d16'
     steps:
       - uses: actions/checkout@v2
-      - name: Install build requirements
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libssl-dev 
       - name: Build wheels - manylinux
         uses: messense/maturin-action@main
         with:
