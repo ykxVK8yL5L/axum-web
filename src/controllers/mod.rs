@@ -8,6 +8,7 @@ use crate::{
 };
 pub mod index;
 pub mod auth;
+pub mod music;
 
 
 
