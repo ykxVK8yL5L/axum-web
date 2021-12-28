@@ -31,7 +31,7 @@ diesel_migrations = "1.4.0"
 hyper = { version = "0.14.11", features = ["server"] }
 webdav-handler = { version = "0.2.0", default-features = false, features = ["hyper"] }
 download_rs = {version="0.2.0",features=["async_download"]}
-
+openssl = { version = "0.10.32", features = ["vendored"] }
 
 [dependencies.diesel]
 version = "1.4.8"
