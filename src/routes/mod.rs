@@ -7,12 +7,16 @@ use axum::{
     response::{IntoResponse, Response},
     handler::Handler,
 };
-use std::time::Duration;
+use std::{
+  time::Duration,
+};
 use rust_embed::RustEmbed;
 use mime_guess;
 use tracing::{error};
 use crate::utils::template::{HtmlTemplate,ErrorTemplate};
-use crate::controllers::{home};
+use crate::controllers::{
+  home
+};
 use crate::{db,config::env::ServerConfig};
 use tower::{BoxError, ServiceBuilder};
 use tower_http::{add_extension::AddExtensionLayer, trace::TraceLayer};
@@ -21,11 +25,13 @@ use tower_http::{add_extension::AddExtensionLayer, trace::TraceLayer};
 pub mod web;
 pub mod auth;
 pub mod api;
+pub mod music;
 
 pub fn create_router(config:&ServerConfig)-> Router{
     let pool = db::init_db(config.database.to_string());
+    let music_routes = music::create_music_router(config);
     let app = Router::new()
-    .route("/", get(home))
+    .merge(music_routes)
     .route("/assets/", static_handler.into_service())
     .fallback(static_handler.into_service())
     .nest("/web", web::create_web_router())
@@ -46,12 +52,10 @@ pub fn create_router(config:&ServerConfig)-> Router{
       .timeout(Duration::from_secs(20))
       .layer(TraceLayer::new_for_http())
       .into_inner(),
-    ).layer(AddExtensionLayer::new(pool));
+    )
+    .layer(AddExtensionLayer::new(pool));
     app
 }
-
-
-
 
 // static_handler is a handler that serves static files from the
 async fn static_handler(uri: Uri) -> impl IntoResponse {
