@@ -15,6 +15,13 @@ pub struct HelloTemplate {
 
 
 #[derive(Template)]
+#[template(path = "music.html")]
+pub struct MusicTemplate {
+    pub name: String,
+}
+
+
+#[derive(Template)]
 #[template(path = "error.html")]
 pub struct ErrorTemplate {
     pub label: String,
