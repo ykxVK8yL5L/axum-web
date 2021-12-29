@@ -32,14 +32,6 @@ webdav-handler = { version = "0.2.0", default-features = false, features = ["hyp
 download_rs = {version="0.2.0",features=["async_download"]}
 openssl = { version = "0.10.32", features = ["vendored"] }
 
-[target.'cfg(windows)'.dependencies.patch.webdav-handler]
-git = "https://github.com/sj6219/webdav-handler-rs.git"
-branch = "win"
-default-features=false
-features = ["hyper"]
-
-
-
 
 [dependencies.diesel]
 version = "1.4.8"
