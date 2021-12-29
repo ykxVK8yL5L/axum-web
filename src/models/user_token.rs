@@ -1,7 +1,11 @@
 use crate::models::user::LoginInfoDTO;
 use chrono::Utc;
-use jwt_simple::prelude::*;
 use serde::{ Deserialize, Serialize };
+
+use hmac::{Hmac, NewMac};
+use jwt::{Header, SignWithKey, Token, VerifyWithKey};
+use sha2::Sha256;
+
 
 pub static KEY: [u8; 16] = *include_bytes!("../secret.key");
 static ONE_WEEK: i64 = 60 * 60 * 24 * 7; // in seconds
@@ -17,7 +21,6 @@ pub struct UserToken {
 
 impl UserToken {
     pub fn generate_token(login: &LoginInfoDTO) -> String {
-        let key = HS256Key::from_bytes(&KEY);
         let now = Utc::now().timestamp_nanos() / 1_000_000_000; // nanosecond -> second
         let playload = UserToken {
             login_at: now,
@@ -25,8 +28,11 @@ impl UserToken {
             user: login.username.clone(),
             login_session: login.login_session.clone(),
         };
-        let claims = Claims::with_custom_claims(playload, Duration::from_secs(ONE_WEEK as u64));
-        let token = key.authenticate(claims).unwrap();
-        token
+        let header: Header = Default::default();
+        let unsigned_token = Token::new(header, playload);
+        let key: Hmac<Sha256> = Hmac::new_from_slice(&KEY).map_err(|_e| "Invalid key").unwrap();
+        let signed_token = unsigned_token.sign_with_key(&key).map_err(|_e| "Sign error").unwrap();
+        signed_token.into()
+
     }
 }

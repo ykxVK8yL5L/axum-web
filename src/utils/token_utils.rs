@@ -5,18 +5,28 @@ use crate::{
         user_token::{UserToken, KEY},
     },
 };
-use jwt_simple::Error;
-use jwt_simple::prelude::*;
 
+use hmac::{Hmac, NewMac};
+use jwt::{Header, SignWithKey, Token, VerifyWithKey};
+use serde::{Deserialize, Serialize};
+use sha2::Sha256;
 
-pub fn decode_token(token: String) -> Result<UserToken,Error> {
-    let key = HS256Key::from_bytes(&KEY);
-    //let claims = key.verify_token::<UserToken>(&token, None)?;
-    let claims = match key.verify_token::<UserToken>(&token, None) {
+pub fn decode_token(token: String) -> Result<UserToken,&'static str> {
+   
+    let key: Hmac<Sha256> = Hmac::new_from_slice(&KEY).map_err(|_e| "Invalid key").unwrap();
+    // let token: Token<Header, UserToken, _> = token.verify_with_key(&key).map_err(|_e| "Verification failed").unwrap();
+    // let (_, claims) = token.into();
+    // Ok(claims)
+
+    let token: Token<Header, UserToken, _> = match token.verify_with_key(&key).map_err(|_e| "Verification failed") {
         Ok(claims)  => claims,
         Err(e) => return Err(e),
     };
-    Ok(claims.custom)
+
+    let (_, claims) = token.into();
+    Ok(claims)
+
+
 
 }
 
