@@ -5,17 +5,23 @@ use crate::{
         user_token::{UserToken, KEY},
     },
 };
+use jwt_simple::Error;
+use jwt_simple::prelude::*;
 
 
-use jsonwebtoken::{DecodingKey, TokenData, Validation};
 
-pub fn decode_token(token: String) -> jsonwebtoken::errors::Result<TokenData<UserToken>> {
-    jsonwebtoken::decode::<UserToken>(&token, &DecodingKey::from_secret(&KEY), &Validation::default())
+pub fn decode_token(token: String) -> Result<UserToken,Error> {
+    let key = HS256Key::from_bytes(&KEY);
+    println!("{}",token);
+    let claims = key.verify_token::<UserToken>(&token, None).unwrap();
+    println!("2 hello");
+    let user = claims.custom;
+    Ok(user)
 }
 
-pub fn verify_token(token_data: &TokenData<UserToken>, pool: &Pool) -> Result<String, String> {
-    if User::is_valid_login_session(&token_data.claims, &pool.get().unwrap()) {
-        Ok(token_data.claims.user.to_string())
+pub fn verify_token(token_data: &UserToken, pool: &Pool) -> Result<String, String> {
+    if User::is_valid_login_session(&token_data, &pool.get().unwrap()) {
+        Ok(token_data.user.to_string())
     } else {
         Err("Invalid token".to_string())
     }

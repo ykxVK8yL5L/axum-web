@@ -1,9 +1,6 @@
 use crate::models::user::LoginInfoDTO;
 use chrono::Utc;
-use jsonwebtoken::{
-    EncodingKey,
-    Header
-};
+use jwt_simple::prelude::*;
 use serde::{ Deserialize, Serialize };
 
 pub static KEY: [u8; 16] = *include_bytes!("../secret.key");
@@ -11,25 +8,25 @@ static ONE_WEEK: i64 = 60 * 60 * 24 * 7; // in seconds
 
 #[derive(Serialize, Deserialize)]
 pub struct UserToken {
-    // issued at
-    pub iat: i64,
-    // expiration
-    pub exp: i64,
-    // data
+    pub login_at: i64,
+    pub expires_at: i64,
     pub user: String,
     pub login_session: String,
 }
 
+
 impl UserToken {
     pub fn generate_token(login: &LoginInfoDTO) -> String {
+        let key = HS256Key::from_bytes(&KEY);
         let now = Utc::now().timestamp_nanos() / 1_000_000_000; // nanosecond -> second
-        let payload = UserToken {
-            iat: now,
-            exp: now + ONE_WEEK,
+        let playload = UserToken {
+            login_at: now,
+            expires_at: now + ONE_WEEK,
             user: login.username.clone(),
             login_session: login.login_session.clone(),
         };
-
-        jsonwebtoken::encode(&Header::default(), &payload, &EncodingKey::from_secret(&KEY)).unwrap()
+        let claims = Claims::with_custom_claims(playload, Duration::from_secs(ONE_WEEK as u64));
+        let token = key.authenticate(claims).unwrap();
+        token
     }
 }

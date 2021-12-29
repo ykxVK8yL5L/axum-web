@@ -69,7 +69,7 @@ where
                 Ok(res)
             })
         }else {
-            println!("`debug damn authed` authenticate_pass called false!");
+            println!("`authed` authenticate_pass called false!");
 
             Box::pin(async move {
                 let response_body = ResponseBody::new(constants::MESSAGE_INVALID_TOKEN, constants::EMPTY);
