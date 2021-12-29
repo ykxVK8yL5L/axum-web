@@ -12,3 +12,4 @@ Cargo.lock
 .DS_Store
 ._*
 axum-web.db
+music-data

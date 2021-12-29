@@ -33,6 +33,7 @@ hyper = { version = "0.14.14", features = ["server"] }
 download_rs = {version="0.2.0",features=["async_download"]}
 openssl = { version = "0.10.32", features = ["vendored"] }
 
+
 [dependencies.diesel]
 version = "1.4.8"
 features = ["sqlite", "r2d2", "chrono"]
