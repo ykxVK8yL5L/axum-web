@@ -11,7 +11,6 @@ table! {
         id -> Integer,
         name -> Text,
         artist -> Text,
-        time -> Text,
         filename -> Nullable<Text>,
     }
 }

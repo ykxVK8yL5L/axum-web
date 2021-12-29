@@ -9,7 +9,6 @@ pub struct Song {
     pub id: i32,
     pub name: String,
     pub artist: String,
-    pub time: String,
     pub filename: Option<String>,
 }
 
@@ -18,7 +17,6 @@ pub struct Song {
 pub struct SongDTO {
     pub name: String,
     pub artist: String,
-    pub time: String,
     pub filename: Option<String>,
 }
 

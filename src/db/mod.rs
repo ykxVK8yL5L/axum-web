@@ -9,7 +9,7 @@ embed_migrations!();
 
 
 pub fn init_db(dbname:String) -> Pool {
-    dotenv::dotenv().ok();
+    //dotenv::dotenv().ok();
     // set up database connection pool
     //let connspec = std::env::var("DATABASE_URL").expect("DATABASE_URL");
     let manager = ConnectionManager::<SqliteConnection>::new(dbname);

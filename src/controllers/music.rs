@@ -40,7 +40,6 @@ pub struct SongRequest {
     pub url_flac: String,
     pub url: String,
     pub lrc: String,
-    pub time: String,
 }
 
 pub async fn music_home(Extension(pool): Extension<Pool>,) -> impl IntoResponse {
@@ -84,10 +83,8 @@ pub async fn music_download(Json(song): Json<SongRequest>,Extension(save_dir): E
     let songDto = SongDTO{
         name: song.name,
         artist: song.artist,
-        time: song.time,
         filename: Some(filename.clone()),
     };
-
 
     match Path::new(&mp3_path_name).exists() {
         true => { 
