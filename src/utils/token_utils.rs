@@ -14,10 +14,6 @@ use sha2::Sha256;
 pub fn decode_token(token: String) -> Result<UserToken,&'static str> {
    
     let key: Hmac<Sha256> = Hmac::new_from_slice(&KEY).map_err(|_e| "Invalid key").unwrap();
-    // let token: Token<Header, UserToken, _> = token.verify_with_key(&key).map_err(|_e| "Verification failed").unwrap();
-    // let (_, claims) = token.into();
-    // Ok(claims)
-
     let token: Token<Header, UserToken, _> = match token.verify_with_key(&key).map_err(|_e| "Verification failed") {
         Ok(claims)  => claims,
         Err(e) => return Err(e),
