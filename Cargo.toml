@@ -28,14 +28,15 @@ jsonwebtoken = "7.2.0"
 bcrypt = "0.9.0"
 diesel_migrations = "1.4.0"
 hyper = { version = "0.14.14", features = ["server"] }
-webdav-handler = { version="0.2.0", default-features = false, features = ["hyper"] }
 download_rs = {version="0.2.0",features=["async_download"]}
 openssl = { version = "0.10.32", features = ["vendored"] }
 
+webdav-handler = { version="0.2.0", default-features = false, features = ["hyper"] }
+webdav-handler_win = { version="0.2.1",git = "https://github.com/ykxVK8yL5L/webdav-handler-rs",branch = 'win', package = "webdav-handler", default-features = false, features = ["hyper"] }
 
-[patch.crates-io]
-webdav-handler = { git = 'https://github.com/miquels/webdav-handler-rs',default-features = false, features = ["hyper"] }
-webdav-handler_win = { git = 'https://github.com/ykxVK8yL5L/webdav-handler-rs', package = 'webdav-handler', branch = 'win',default-features = false, features = ["hyper"] }
+#[patch.crates-io]
+#webdav-handler = { git = 'https://github.com/miquels/webdav-handler-rs',default-features = false, features = ["hyper"] }
+#webdav-handler_win = { git = 'https://github.com/ykxVK8yL5L/webdav-handler-rs', package = 'webdav-handler', branch = 'win',default-features = false, features = ["hyper"] }
 
 
 [dependencies.diesel]
