@@ -8,7 +8,7 @@ edition = "2021"
 [dependencies]
 lazy_static = "1.4.0"
 axum = { git = "https://github.com/tokio-rs/axum" }
-webdav-handler = { git = "https://github.com/sj6219/webdav-handler-rs.git", branch = "win" }
+#webdav-handler = { git = "https://github.com/sj6219/webdav-handler-rs.git", branch = "win", default-features=false, features = ["hyper"] }
 tokio = { version = "1", features = ["full"] }
 tower = { version = "0.4.11", features = ["util", "timeout"] }
 tower-http = { version = "0.2.0", features = ["fs","add-extension", "trace"] }
@@ -29,7 +29,7 @@ jsonwebtoken = "7.2.0"
 bcrypt = "0.9.0"
 diesel_migrations = "1.4.0"
 hyper = { version = "0.14.14", features = ["server"] }
-#webdav-handler = { version = "0.2.0", default-features = false, features = ["hyper"] }
+webdav-handler = { version = "0.2.0", default-features = false, features = ["hyper"] }
 download_rs = {version="0.2.0",features=["async_download"]}
 openssl = { version = "0.10.32", features = ["vendored"] }
 
