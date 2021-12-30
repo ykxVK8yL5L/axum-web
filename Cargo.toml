@@ -31,9 +31,7 @@ bcrypt = "0.9.0"
 diesel_migrations = "1.4.0"
 hyper = { version = "0.14.14",  default-features=false,features = ["server"] }
 download_rs = {git="https://github.com/ykxVK8yL5L/download_rs",version="0.2.0",features=["async_download"]}
-
-#download_rs = {version="0.2.0",features=["async_download"]}
-#openssl = { version = "0.10.32", features = ["vendored"] }
+openssl = { version = "0.10.32", features = ["vendored"],optional = true }
 
 
 [target.'cfg(windows)'.dependencies]
@@ -42,10 +40,12 @@ webdav-handler_win = { version="0.2.1",git = "https://github.com/ykxVK8yL5L/webd
 [target.'cfg(unix)'.dependencies]
 webdav-handler = { version="0.2.0", default-features = false, features = ["hyper"] }
 
+
 [features]
 default = ["rustls-tls"]
 rustls-tls = ["reqwest/rustls-tls"]
-
+native-tls = ["reqwest/native-tls"]
+native-tls-vendored = ["reqwest/native-tls-vendored", "openssl"]
 
 
 [dependencies.diesel]
