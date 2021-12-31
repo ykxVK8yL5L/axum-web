@@ -76,4 +76,3 @@ jobs:
           file_glob: true
           overwrite: true
           tag: "refs/tags/${{ github.event.inputs.tag }}"
-  
