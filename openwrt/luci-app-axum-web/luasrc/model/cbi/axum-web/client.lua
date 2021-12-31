@@ -10,6 +10,8 @@ m:section(SimpleSection).template = "axum-web/axum-web_status"
 e = m:section(TypedSection, "server")
 e.anonymous = true
 
+enable = e:option(Flag, "enable", translate("Enable"))
+enable.rmempty = false
 
 host = e:option(Value, "host", translate("Host"))
 host.default = "0.0.0.0"
