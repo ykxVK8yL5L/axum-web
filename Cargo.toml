@@ -5,6 +5,15 @@ edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+proc-macro = true
+name = "automod"
+path = "src/lib.rs"
+
+[[bin]]
+name = "axum-web"
+path = "src/main.rs"
+
 [dependencies]
 lazy_static = "1.4.0"
 axum = {git="https://github.com/tokio-rs/axum"}
@@ -59,6 +68,17 @@ features = ["serde"]
 [dependencies.uuid]
 version = "0.8.2"
 features = ["v4"]
+
+
+[dependencies.proc-macro2]
+version = "1.0"
+
+[dependencies.quote]
+version = "1.0"
+
+[dependencies.syn]
+version = "1.0"
+
 
 [profile.release]
 opt-level = 'z'

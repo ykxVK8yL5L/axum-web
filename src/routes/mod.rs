@@ -22,21 +22,20 @@ use tower::{BoxError, ServiceBuilder};
 use tower_http::{add_extension::AddExtensionLayer, trace::TraceLayer};
 
 
-pub mod web;
-pub mod auth;
-pub mod api;
-pub mod music;
+automod::dir!("src/routes");
+
 
 pub fn create_router(config:&ServerConfig)-> Router{
     let pool = db::init_db(config.database.to_string());
-    let music_routes = music::create_music_router(config);
+    //let music_routes = music::create_music_router(config);
+    // .nest("/web", web::create_web_router())
+    // .nest("/api", api::create_api_router())
+    // .nest("/auth", auth::create_auth_router())
+    automod::create_controllers_route!("src/routes");
     let app = Router::new()
-    .merge(music_routes)
+    .merge(empty_route)
     .route("/assets/", static_handler.into_service())
     .fallback(static_handler.into_service())
-    .nest("/web", web::create_web_router())
-    .nest("/api", api::create_api_router())
-    .nest("/auth", auth::create_auth_router())
     .layer(
       ServiceBuilder::new()
       .layer(HandleErrorLayer::new(|error: BoxError| async move {
@@ -54,6 +53,7 @@ pub fn create_router(config:&ServerConfig)-> Router{
       .into_inner(),
     )
     .layer(AddExtensionLayer::new(pool));
+   
     app
 }
 
