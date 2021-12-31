@@ -1,12 +1,16 @@
 # 该项目只是实验性质，用来测试在线编译rust项目，没有实际应用    
 ## axum-web
 尝试用axum做web开发    
+介绍视频: https://youtu.be/LPD0rtw6jzg  
+Docker: https://hub.docker.com/r/ykxvk8yl5l/axum-web   
 目前功能:  
 * 静态文件  
 * 模板  
 * 打包静态文件至可执行文件  
 * 采用diesel做orm 数据库用的sqlite3  
 * 已具备基础的JWT认证:注册、登陆、退出。采用Token认证  
+* 兼容嵌入式设备Openwrt也可用（有人提需求再实现吧）
+
 
 命令行格式   
 ```
