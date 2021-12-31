@@ -1,0 +1,11 @@
+#!/bin/sh
+
+uci -q batch <<-EOF >/dev/null
+	delete ucitrack.@axum-web[-1]
+	add ucitrack axum-web
+	set ucitrack.@axum-web[-1].init=axum-web
+	commit ucitrack
+EOF
+
+rm -f /tmp/luci-indexcache
+exit 0

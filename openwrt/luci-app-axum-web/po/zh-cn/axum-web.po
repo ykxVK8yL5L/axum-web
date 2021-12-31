@@ -1,0 +1,58 @@
+msgid ""
+msgstr "Content-Type: text/plain; charset=UTF-8\n"
+
+msgid "Axum-Web"
+msgstr "Axum-Web"
+
+msgid "Axum-Web"
+msgstr "Axum-Web"
+
+msgid "Enable"
+msgstr "启用"
+
+
+
+msgid "Host"
+msgstr "监听主机"
+
+msgid "Root Directory"
+msgstr "数据保存目录"
+
+msgid "Host"
+msgstr "监听主机"
+
+msgid "Port"
+msgstr "监听端口"
+
+msgid "webdav_port"
+msgstr "Webdav监听端口"
+
+
+msgid "database"
+msgstr "数据库文件"
+
+
+msgid "RUNNING"
+msgstr "运行中"
+
+msgid "NOT RUNNING"
+msgstr "未运行"
+
+msgid "Settings"
+msgstr "设置"
+
+msgid "Log"
+msgstr "日志"
+
+msgid "Debug Mode"
+msgstr "调试模式"
+
+msgid "Unused"
+msgstr "暂时无用试模式"
+
+
+
+
+msgid "<a href=\"https://github.com/ykxVK8yL5L/axum-web\" target=\"_blank\">Project GitHub URL</a>"
+msgstr "<a href=\"https://github.com/ykxVK8yL5L/axum-web\" target=\"_blank\">GitHub 项目地址</a>"
+
