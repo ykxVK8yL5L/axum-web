@@ -10,8 +10,6 @@ msgstr "Axum-Web"
 msgid "Enable"
 msgstr "启用"
 
-
-
 msgid "Host"
 msgstr "监听主机"
 
@@ -49,8 +47,6 @@ msgstr "调试模式"
 
 msgid "Unused"
 msgstr "暂时无用试模式"
-
-
 
 
 msgid "<a href=\"https://github.com/ykxVK8yL5L/axum-web\" target=\"_blank\">Project GitHub URL</a>"

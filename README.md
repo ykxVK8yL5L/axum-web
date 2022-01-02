@@ -9,7 +9,7 @@ Docker: https://hub.docker.com/r/ykxvk8yl5l/axum-web
 * 打包静态文件至可执行文件  
 * 采用diesel做orm 数据库用的sqlite3  
 * 已具备基础的JWT认证:注册、登陆、退出。采用Token认证  
-* 兼容嵌入式设备Openwrt也可用（有人提需求再实现吧）
+* 兼容嵌入式设备Openwrt也可用
 
 
 命令行格式   
@@ -36,10 +36,10 @@ curl -X POST -i 'http://127.0.0.1:10099/auth/signup' \
 openwrt   
 x86_64的安装代码:   
 ```
-wget https://github.com/ykxVK8yL5L/axum-web/releases/download/v0.0.2/axum-web_0.0.1_x86_64.ipk
+wget https://github.com/ykxVK8yL5L/axum-web/releases/download/v0.0.2/axum-web_0.0.2_x86_64.ipk
 wget https://github.com/ykxVK8yL5L/axum-web/releases/download/v0.0.2/luci-app-axum-web_1.0.0_all.ipk
 wget https://github.com/ykxVK8yL5L/axum-web/releases/download/v0.0.2/luci-i18n-axum-web-zh-cn_1.0.0-1_all.ipk
-opkg install axum-web_0.0.1_x86_64.ipk
+opkg install axum-web_0.0.2_x86_64.ipk
 opkg install luci-app-axum-web_1.0.0_all.ipk
 opkg install luci-i18n-axum-web-zh-cn_1.0.0-1_all.ipk
 ```

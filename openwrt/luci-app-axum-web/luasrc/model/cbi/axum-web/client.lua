@@ -32,7 +32,7 @@ root.default = "/root"
 
 database = e:option(Value, "database", translate("database"))
 database.default = "/root/axum-web.db"
-root.description = translate("Unused")
+database.description = translate("Unused")
 
 
 
