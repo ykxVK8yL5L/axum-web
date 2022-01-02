@@ -46,7 +46,7 @@ msgid "Debug Mode"
 msgstr "调试模式"
 
 msgid "Unused"
-msgstr "暂时无用试模式"
+msgstr "暂时无用"
 
 
 msgid "<a href=\"https://github.com/ykxVK8yL5L/axum-web\" target=\"_blank\">Project GitHub URL</a>"
