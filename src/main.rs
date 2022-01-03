@@ -76,7 +76,7 @@ async fn main() {
             }
         });
 
-        info!("Webdav服务端口:ttp://:{:?}", addr);
+        info!("Webdav服务端口:http://:{:?}", addr);
         let _ = hyper::Server::bind(&addr)
             .serve(make_service)
             .await

@@ -39,9 +39,9 @@ jwt = "0.15.0"
 bcrypt = "0.9.0"
 diesel_migrations = "1.4.0"
 hyper = { version = "0.14.14",  default-features=false,features = ["server"] }
-download_rs = {git="https://github.com/ykxVK8yL5L/download_rs",version="0.2.0",features=["async_download"]}
+#download_rs = {git="https://github.com/ykxVK8yL5L/download_rs",version="0.2.0",features=["async_download"]}
 openssl = { version = "0.10.32", features = ["vendored"],optional = true }
-
+download_rs = {version="0.2.0",features=["async_download"]}
 
 [target.'cfg(windows)'.dependencies]
 webdav-handler_win = { version="0.2.1",git = "https://github.com/ykxVK8yL5L/webdav-handler-rs",branch = 'win', package = "webdav-handler", default-features = false, features = ["hyper"] }
