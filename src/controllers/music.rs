@@ -107,7 +107,7 @@ pub async fn music_download(Json(song): Json<SongRequest>,Extension(save_dir): E
                     let mp3_download = Download::new(&song.url,Some(&mp3_path_name),None);
                     match mp3_download.download() {
                         Ok(_) => println!("mp3下载完成"),
-                        Err(e) => println!("mp3下载出错 ： {}",e.to_string()),
+                        Err(e) => println!("mp3下载出错: {}",e.to_string()),
                     }
                 },
             };
