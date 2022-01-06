@@ -35,9 +35,9 @@ pub struct SongRequest {
     pub name: String,
     pub artist: String,
     pub cover: String,
-    pub url_m4a: String,
-    pub url_320: String,
-    pub url_flac: String,
+    pub url_m4a: Option<String>,
+    pub url_320: Option<String>,
+    pub url_flac: Option<String>,
     pub url: String,
     pub lrc: String,
 }
@@ -94,11 +94,25 @@ pub async fn music_download(Json(song): Json<SongRequest>,Extension(save_dir): E
         }
         false => { 
             println!("开始下载{}",filename.clone());
-            let mp3_download = Download::new(&song.url_320,Some(&mp3_path_name),None);
-            match mp3_download.download() {
-                Ok(_) => println!("mp3下载完成"),
-                Err(e) => println!("mp3下载出错 ： {}",e.to_string()),
-            }
+
+            match song.url_320 {
+                Some(url) => {
+                    let mp3_download = Download::new(&url,Some(&mp3_path_name),None);
+                    match mp3_download.download() {
+                        Ok(_) => println!("mp3下载完成"),
+                        Err(e) => println!("mp3下载出错 ： {}",e.to_string()),
+                    }
+                },
+                None => {
+                    let mp3_download = Download::new(&song.url,Some(&mp3_path_name),None);
+                    match mp3_download.download() {
+                        Ok(_) => println!("mp3下载完成"),
+                        Err(e) => println!("mp3下载出错 ： {}",e.to_string()),
+                    }
+                },
+            };
+
+
             let cover_download = Download::new(&song.cover,Some(&cover_path_name),None);
             match cover_download.download() {
                 Ok(_) => println!("cover下载完成"),
