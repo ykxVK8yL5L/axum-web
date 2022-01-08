@@ -1,0 +1,5 @@
+FROM busybox
+ARG TARGETARCH
+ARG TARGETVARIANT
+ADD axum-web-$TARGETARCH$TARGETVARIANT /root/axum-web
+CMD ["/root/axum-web"]
