@@ -16,12 +16,12 @@ jobs:
       matrix:
         platform: [
           { target: "x86_64-unknown-linux-musl", image_tag: "x86_64-musl", wheel: true },
-          #{ target: "i686-unknown-linux-musl", image_tag: "i686-musl", wheel: true },
-          #{ target: "aarch64-unknown-linux-musl", image_tag: "aarch64-musl", wheel: true },
-          #{ target: "armv7-unknown-linux-musleabihf", image_tag: "armv7-musleabihf", wheel: true },
-          #{ target: "armv7-unknown-linux-musleabi", image_tag: "armv7-musleabi", wheel: false },
-          #{ target: "arm-unknown-linux-musleabihf", image_tag: "arm-musleabihf", wheel: false },
-          #{ target: "arm-unknown-linux-musleabi", image_tag: "arm-musleabi", wheel: false },
+          { target: "i686-unknown-linux-musl", image_tag: "i686-musl", wheel: true },
+          { target: "aarch64-unknown-linux-musl", image_tag: "aarch64-musl", wheel: true },
+          { target: "armv7-unknown-linux-musleabihf", image_tag: "armv7-musleabihf", wheel: true },
+          { target: "armv7-unknown-linux-musleabi", image_tag: "armv7-musleabi", wheel: false },
+          { target: "arm-unknown-linux-musleabihf", image_tag: "arm-musleabihf", wheel: false },
+          { target: "arm-unknown-linux-musleabi", image_tag: "arm-musleabi", wheel: false },
         ]
     container:
       image: docker://messense/rust-musl-cross:${{ matrix.platform.image_tag }}
@@ -140,8 +140,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/386,linux/arm64,linux/arm/v7,linux/arm/v6
           push: ${{ github.event_name != 'pull_request' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/')) }}
-          tags: ykxvk8yl5l/axum-web:test
+          tags: ykxvk8yl5l/axum-web:latest
           labels: ${{ steps.meta.outputs.labels }}
   
