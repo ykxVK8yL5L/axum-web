@@ -232,7 +232,7 @@
   <script src="/assets/js/axios.min.js"></script>
   <script src="/assets/js/vuetify.min.js"></script>
   <script src="/assets/js/jquery-3.6.0.min.js"></script>
-  <script src="/assets/layer/3.5.1/layer.min.js"></script>
+  <script src="/assets/layer/layer.js"></script>
   <script src="/assets/js/clipboard.min.js"></script>
   <script>
     new Vue({
@@ -256,6 +256,7 @@
         hello:"控制台",
         actionTitle:'离线',
         showConfig:false,
+        authinfo:{{ auth_info|safe }},
       }),
       computed: {
        
@@ -267,14 +268,14 @@
       },
       mounted: function () {
         this.$nextTick(function () {
-          if (localStorage.email) {
-            this.email = localStorage.email;
+          if (this.authinfo.email) {
+            this.email = this.authinfo.email;
           }
-          if (localStorage.password) {
-            this.password = localStorage.password;
+          if (this.authinfo.password) {
+            this.password = this.authinfo.password;
           }
-          if (localStorage.token) {
-            this.token = localStorage.token;
+          if (this.authinfo.token) {
+            this.token = this.authinfo.token;
           }
         })
       },
@@ -290,10 +291,10 @@
           layer.load();
           var config = {
             method: 'post',
-            url: 'https://dash-progo.koyeb.app/auth/login',
+            url: 'https://dash.vm2.me/auth/login',
             headers: { 
               'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1', 
-              'Host': 'dash-progo.koyeb.app', 
+              'Host': 'file.vm2.me',
               'Content-Type': 'application/json', 
               'Referer': 'https://www.progo.cc/', 
               'Connection': 'keep-alive', 
@@ -311,7 +312,8 @@
                     that.token = result['data']['token'];
                     localStorage.token = that.token;
                     layer.alert("登陆成功");
-
+                    that.authinfo = {'email':that.email,'password':that.password,'token':that.token};
+                    that.save_auth();
             }else{
                     layer.alert(result['message']);
             }
@@ -323,7 +325,26 @@
           });
 
         },
-      addoffline:function(){
+        save_auth:function(){
+          var that = this;
+          var data = JSON.stringify(that.authinfo);
+
+          var params = new URLSearchParams();
+          params.append('setting', data);
+   
+
+          axios.post('/offline/save_auth', params,{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+          .then(function (response) {
+            //console.log(JSON.stringify(response.data));
+            var result = response.data;
+            layer.alert(result);
+          })
+          .catch(function (error) {
+            layer.alert("出现错误，稍后重试");
+            console.log(error);
+          });
+        },
+        addoffline:function(){
         var that = this;
         var data = JSON.stringify({
             "url": that.offlineurl
@@ -363,7 +384,7 @@
             console.log(error);
           });
       },
-      offlinetake:function(){
+        offlinetake:function(){
         var that = this;
         layer.load();
         var config = {
@@ -437,54 +458,48 @@
               console.log(error);
             });
       },
+        getlink:function(id){
+          var that = this;
+          layer.load();
+          var config = {
+            method: 'get',
+            url: 'https://file-progo.koyeb.app/take/file?id='+id,
+            headers: { 
+              'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1', 
+              'Referer': 'https://file.progo.cc/', 
+              'Authorization': 'Bearer '+that.token, 
+              'Host': 'file-progo.koyeb.app', 
+              'Connection': 'keep-alive', 
+              'Origin': 'https://file.progo.cc'
+            }
+          };
+          axios(config)
+          .then(function (response) {
+            //console.log(JSON.stringify(response.data));
+            var result = response.data;
+            layer.closeAll('loading');
+            if(result['status']=='ok'){
 
-
-      getlink:function(id){
-        var that = this;
-        layer.load();
-        var config = {
-          method: 'get',
-          url: 'https://file-progo.koyeb.app/take/file?id='+id,
-          headers: { 
-            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1', 
-            'Referer': 'https://file.progo.cc/', 
-            'Authorization': 'Bearer '+that.token, 
-            'Host': 'file-progo.koyeb.app', 
-            'Connection': 'keep-alive', 
-            'Origin': 'https://file.progo.cc'
-          }
-        };
-
-        axios(config)
-        .then(function (response) {
-          //console.log(JSON.stringify(response.data));
-          var result = response.data;
-          layer.closeAll('loading');
-          if(result['status']=='ok'){
-
-              var linkurl = result['data']['url']+'##'+result['data']['name'];
-              var html = '<div class="input-group"><textarea class="form-control " id="bar">'+linkurl+'</textarea><div style="text-align:center"> <button class="v-btn v-btn--has-bg theme--light v-size--default copybtn" data-clipboard-target="#bar">复制</button></div></div>';
-              layer.open({
-                  type: 1,
-                  shadeClose: true,
-                  content: html
-              });
-              
-          }else{
-              layer.alert(result['message']);
-          }
-        })
-        .catch(function (error) {
-          layer.closeAll('loading');
-          layer.alert("出现错误，稍后重试");
-          console.log(error);
-        });
-    },
-
-
-
-    },
-    })
+                var linkurl = result['data']['url']+'##'+result['data']['name'];
+                var html = '<div class="input-group"><textarea class="form-control " id="bar">'+linkurl+'</textarea><div style="text-align:center"> <button class="v-btn v-btn--has-bg theme--light v-size--default copybtn" data-clipboard-target="#bar">复制</button></div></div>';
+                layer.open({
+                    type: 1,
+                    shadeClose: true,
+                    content: html
+                });
+                
+            }else{
+                layer.alert(result['message']);
+            }
+          })
+          .catch(function (error) {
+            layer.closeAll('loading');
+            layer.alert("出现错误，稍后重试");
+            console.log(error);
+          });
+        },
+      }
+})
 
 
     var clipboard = new ClipboardJS('.copybtn');

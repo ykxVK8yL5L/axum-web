@@ -24,6 +24,7 @@ pub struct MusicTemplate {
 #[template(path = "offline.html")]
 pub struct OfflineTemplate {
     pub name: String,
+    pub auth_info: String,
 }
 
 
