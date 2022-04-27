@@ -39,16 +39,12 @@
       <v-toolbar-title>${actionTitle}</v-toolbar-title>
       <v-spacer></v-spacer>
 
-
-
-
 <!-- 其它操作视图元素开始 -->
     <v-dialog
       v-model="showConfig"
       persistent
       max-width="600px"
     >
-
     <v-card>
       <v-card-title>
         <span class="text-h5">登陆</span>
@@ -78,7 +74,6 @@
                 counter
                 @click:append="showpassword = !showpassword"
             ></v-text-field>
-
             <v-col cols="12"  sm="12" md="12">
               <v-textarea
               v-model="token"
@@ -86,10 +81,7 @@
               label="token"
               filled
           ></v-textarea>
-
-
             </v-col>
-
           </v-row>
         </v-container>
         <small>*为必填项,登陆成功token才会变化</small>
