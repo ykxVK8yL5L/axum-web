@@ -20,6 +20,13 @@ pub struct MusicTemplate {
     pub name: String,
 }
 
+#[derive(Template)]
+#[template(path = "offline.html")]
+pub struct OfflineTemplate {
+    pub name: String,
+}
+
+
 
 #[derive(Template)]
 #[template(path = "error.html")]
