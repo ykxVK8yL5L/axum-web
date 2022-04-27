@@ -195,7 +195,7 @@
  			<v-text-field
                 :label="takeresult['data']['name']"
                 id="foo-file"
-                :value="takeresult['data']['url']"
+                :value="takeresult['data']['url']+'##'+takeresult['data']['name']"
               >
              	<template slot="append">
 				    <v-icon class="copybtn" data-clipboard-target="#foo-file">mdi-content-copy</v-icon>
@@ -293,12 +293,8 @@
             method: 'post',
             url: 'https://dash.vm2.me/auth/login',
             headers: { 
-              'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1', 
-              'Host': 'file.vm2.me',
               'Content-Type': 'application/json', 
-              'Referer': 'https://www.progo.cc/', 
-              'Connection': 'keep-alive', 
-              'Origin': 'https://www.progo.cc'
+              'Authorization': 'Bearer '+that.token,
             },
             data : data
           };
@@ -353,15 +349,10 @@
 
         var config = {
           method: 'post',
-          url: 'https://file-progo.koyeb.app/add/download-task',
+          url: 'https://file.vm2.me/add/download-task',
           headers: { 
-            'Origin': 'https://file.progo.cc', 
             'Content-Type': 'application/json', 
-            'Host': 'file-progo.koyeb.app', 
-            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1', 
             'Authorization': 'Bearer '+that.token, 
-            'Referer': 'https://file.progo.cc/', 
-            'Connection': 'keep-alive'
           },
           data : data
         };
@@ -389,14 +380,10 @@
         layer.load();
         var config = {
           method: 'get',
-          url: 'https://file-progo.koyeb.app/take/file?id='+that.offlinetakecode,
+          url: 'https://file.vm2.me/take/file?id='+that.offlinetakecode,
           headers: { 
-            'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1', 
-            'Referer': 'https://file.progo.cc/', 
-            'Authorization': 'Bearer '+that.token, 
-            'Host': 'file-progo.koyeb.app', 
-            'Connection': 'keep-alive', 
-            'Origin': 'https://file.progo.cc'
+            'Content-Type': 'application/json', 
+            'Authorization': 'Bearer '+that.token,
           }
         };
 
@@ -408,7 +395,8 @@
               that.takeofflineok = true;
               that.takeresult = result;
               if(result['data']['targetType']=='folder'){
-                  that.offlinelist(result['data']['id']);
+                  //that.offlinelist(result['data']['id']);
+                  that.offlinelist(that.offlinetakecode);
               }else{
                   layer.closeAll('loading');
               }
@@ -430,14 +418,10 @@
           layer.load();
           var config = {
             method: 'get',
-            url: 'https://file-progo.koyeb.app/get/file-list?id='+id,
+            url: 'https://file.vm2.me/get/file-list?id='+id,
             headers: { 
-              'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1', 
-              'Referer': 'https://file.progo.cc/', 
-              'Authorization': 'Bearer '+that.token, 
-              'Host': 'file-progo.koyeb.app', 
-              'Connection': 'keep-alive', 
-              'Origin': 'https://file.progo.cc'
+              'Content-Type': 'application/json', 
+              'Authorization': 'Bearer '+that.token,
             }
           };
 
@@ -463,14 +447,10 @@
           layer.load();
           var config = {
             method: 'get',
-            url: 'https://file-progo.koyeb.app/take/file?id='+id,
+            url: 'https://file.vm2.me/take/file?id='+id,
             headers: { 
-              'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 15_4_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.4 Mobile/15E148 Safari/604.1', 
-              'Referer': 'https://file.progo.cc/', 
-              'Authorization': 'Bearer '+that.token, 
-              'Host': 'file-progo.koyeb.app', 
-              'Connection': 'keep-alive', 
-              'Origin': 'https://file.progo.cc'
+              'Content-Type': 'application/json', 
+              'Authorization': 'Bearer '+that.token,
             }
           };
           axios(config)
@@ -479,7 +459,6 @@
             var result = response.data;
             layer.closeAll('loading');
             if(result['status']=='ok'){
-
                 var linkurl = result['data']['url']+'##'+result['data']['name'];
                 var html = '<div class="input-group"><textarea class="form-control " id="bar">'+linkurl+'</textarea><div style="text-align:center"> <button class="v-btn v-btn--has-bg theme--light v-size--default copybtn" data-clipboard-target="#bar">复制</button></div></div>';
                 layer.open({
