@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"> 
+  <title>{{ name }}</title>
+  <link href="/assets/css/roboto.css" rel="stylesheet">
+  <link href="/assets/css/materialdesignicons.css" rel="stylesheet">
+  <link href="/assets/css/vuetify.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/APlayer.min.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+</head>
+<body>
+  <div id="app">
+    <v-app>
+      <v-navigation-drawer v-model="drawer" mobile-breakpoint="960"  app  width="260" dark src="https://raw.githubusercontent.com/wclr/material-dashboard-pro/master/assets/img/sidebar-1.jpg">
+        <template v-slot:img="props">
+            <v-img
+                :gradient="`to bottom, rgba(0, 0, 0, .6), rgba(0, 0, 0, .7)`"
+                v-bind="props"
+            />
+        </template>
+        <v-list dense  nav>
+          <v-list-item>
+            <v-list-item-avatar  class="align-self-center" >
+              <v-avatar  color="orange"  size="36">
+                <span class="white--text text-h5">N</span>
+              </v-avatar>     
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title  class="display-5"  v-text="hello" />
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+        <v-list>
+            <v-list-item-group  mandatory	color="white">
+                <v-list-item
+                  v-for="([icon, text, key], i) in items"
+                  :key="i"
+                  link
+                  @click="showcontainer=key;actionTitle=text"
+                >
+                  <v-list-item-icon>
+                    <v-icon>${ icon }</v-icon>
+                  </v-list-item-icon>
+    
+                  <v-list-item-content>
+                    <v-list-item-title>${ text }</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+             </v-list-item-group>
+        </v-list>
+      </v-navigation-drawer>
+      <v-app-bar  absolute  app  color="transparent"  flat  height="75">
+      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-toolbar-title>${actionTitle}</v-toolbar-title>
+      <v-spacer></v-spacer>
+
+
+      <v-menu offset-y>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn
+            v-bind="attrs"
+            v-on="on"
+            icon
+          >
+            <v-icon>mdi-dots-vertical</v-icon>
+          </v-btn>
+        </template>
+        <v-list>
+          <v-list-item
+            @click="showSetting=true"
+          >
+            <v-list-item-title>Aria2配置</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+
+    </v-app-bar>
+
+
+<!-- 其它操作视图元素开始 -->
+<v-dialog
+v-model="showConfig"
+persistent
+max-width="600px"
+>
+<v-card>
+<v-card-title>
+  <span class="text-h5">登陆</span>
+</v-card-title>
+<v-card-text>
+  <v-container>
+    <v-row>
+      <v-col cols="12"  sm="12" md="12">
+        <v-text-field
+          ref="email"
+          v-model="email"
+          label="邮箱*"
+          placeholder="邮箱"
+          required
+        ></v-text-field>
+
+      </v-col>
+      <v-col cols="12"  sm="12" md="12">
+          <v-text-field
+          v-model="password"
+          :append-icon="showpassword ? 'mdi-eye' : 'mdi-eye-off'"
+          :type="showpassword ? 'text' : 'password'"
+          required
+          name="password"
+          label="密码*"
+          hint=""
+          counter
+          @click:append="showpassword = !showpassword"
+      ></v-text-field>
+      <v-col cols="12"  sm="12" md="12">
+        <v-textarea
+        v-model="token"
+        name="token"
+        label="token"
+        filled
+    ></v-textarea>
+      </v-col>
+    </v-row>
+  </v-container>
+  <small>*为必填项,登陆成功token才会变化</small>
+</v-card-text>
+<v-card-actions>
+  <v-spacer></v-spacer>
+  <v-btn
+    color="blue darken-1"
+    text
+    @click="showConfig = false"
+  >
+    关闭
+  </v-btn>
+  <v-btn
+    color="blue darken-1"
+    text
+    @click="login"
+  >
+    登陆
+  </v-btn>
+</v-card-actions>
+</v-card>
+
+</v-dialog>
+
+<!--aria2配置开始-->
+<v-dialog
+      v-model="showSetting"
+      persistent
+      max-width="600px"
+    >
+      <v-card>
+        <v-card-title>
+          <span class="text-h5">下载配置</span>
+        </v-card-title>
+        <v-card-text>
+          <v-container>
+            <v-row>
+             
+                <v-col cols="12">
+                    <v-text-field
+                        v-model="aria2Url"
+                        label="Aria2地址"
+                    ></v-text-field>
+                </v-col>
+                <v-col cols="12">
+                    <v-text-field
+                        v-model="aria2Token"
+                        label="Aria2 Token"
+                    ></v-text-field>
+                </v-col>
+
+                <v-col cols="12">
+                    <v-text-field
+                        v-model="aria2Dir"
+                        label="文件保存目录"
+                    ></v-text-field>
+                </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="showSetting = false"
+          >
+            关闭
+          </v-btn>
+          <v-btn
+            color="blue darken-1"
+            text
+            @click="showSetting = false"
+          >
+            保存
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <!--aria2配置结束-->
+
+
+
+<!-- 其它操作视图元素结束 -->
+
+
+    <v-main>
+      <v-container fluid v-show="showcontainer=='showoffline'">
+        <v-row dense>
+          <v-col cols="12">
+            <template>
+              <v-card>
+                <v-tabs
+                  v-model="tab"
+                  center-active
+                >
+                  <v-tab href="#save">存件</v-tab>
+                  <v-tab href="#take">取件</v-tab>
+                  <v-tab>
+                    <v-btn depressed @click="showConfig = true">
+                      登陆
+                    </v-btn>
+                  </v-tab>
+                
+                </v-tabs>
+
+
+                <v-tabs-items v-model="tab">
+                  <v-tab-item :key="1" value="save">
+                    <v-card flat>
+                        <v-textarea
+                        v-model="offlineurl"
+                        append-icon="mdi-cloud-upload"
+                        name="offlineurl"
+                        label="下载链接"
+                        @click:append="addoffline"
+                      ></v-textarea>
+                    </v-card>
+                  </v-tab-item>
+                  <v-tab-item :key="2" value="take">
+                    <v-card flat>
+                        <v-text-field
+                        v-model="offlinetakecode"
+                        name="offlinetakecode"
+                        append-icon="mdi-cloud-download"
+                        label="取件码"
+                        @click:append="offlinetake"
+                      ></v-text-field>
+                    </v-card>
+                  </v-tab-item>
+                </v-tabs-items>
+
+              </v-card>
+            </template>
+        </v-col>
+        </v-row>
+
+
+
+        <v-row dense v-if="addofflineok">
+          <v-col cols="12">
+              <v-text-field
+                v-model="offlinecode"
+                label="取件码"
+                id="foo"
+              >
+             	<template slot="append">
+				    <v-icon class="copybtn" data-clipboard-target="#foo">mdi-content-copy</v-icon>
+				    <v-icon @click="offlinetake">mdi-cloud-download</v-icon>
+			 	 </template>
+              </v-text-field>
+          </v-col>
+        </v-row>
+
+    
+
+        <v-row dense v-if="takeofflineok">
+          <v-col cols="12" v-if="takeresult['data']['targetType']=='file'">
+ 			<v-text-field
+                :label="takeresult['data']['name']"
+                id="foo-file"
+                :value="takeresult['data']['url']+'##'+takeresult['data']['name']"
+              >
+             	<template slot="append">
+				    <v-icon class="copybtn" data-clipboard-target="#foo-file">mdi-content-copy</v-icon>
+			 	 </template>
+              </v-text-field>
+          </v-col>
+        </v-row>
+
+
+        <v-row dense v-if="takeofflineok">
+          <v-col cols="12" v-if="takeresult['data']['targetType']=='folder'">
+			       <v-text-field
+			         v-for="item in takeresult['filelist']"
+               :value="item['name']+'-'+item['size']"
+ 				       append-outer-icon="mdi-link"
+               v-on="on"
+                @click:append-outer="getlink(item['id'])"
+                readonly
+              >
+              </v-text-field>
+          </v-col>
+        </v-row>
+
+
+
+
+
+      </v-container>
+
+      <v-container fluid v-show="showcontainer=='showmusic'">
+        <v-row align="center">
+              <v-col
+                class="d-flex"
+                cols="3"
+                sm="3"
+              >
+                 <v-select
+                          v-model="select"
+                          :items="types"
+                          item-text="name"
+                          item-value="value"
+                          label="来源"
+                          return-object
+                          single-line
+                          solo
+                        ></v-select>
+              </v-col>
+              <v-col
+                class="d-flex"
+                cols="9"
+                sm="9"
+              >
+              <v-text-field
+                label="歌手/歌曲"
+                v-model="kw"
+                append-icon = "mdi-cloud-search-outline"
+                @click:append="search"
+                solo
+              >
+              </v-text-field>
+              </v-col>
+    
+        </v-row>
+        <v-row align="center">
+            <v-col
+            class="d-flex"
+            cols="12"
+            sm="12"
+            >
+                <div id="aplayer" style="width: 100%"></div>
+            </v-col>
+
+            <v-col
+                class="d-flex"
+                cols="12"
+                sm="12"
+            >
+                <v-card
+                class="col-12"
+                flat
+                >
+                    <v-card-text>
+                        <v-row
+                            align="center"
+                            justify="center"
+                        >
+                            <v-btn-toggle
+                            v-model="toggle_exclusive"
+                            rounded
+                            >
+                            <v-btn @click="nextpage">下一页</v-btn>
+                            <v-btn @click="download">Aria2下载</v-btn>
+                            <v-btn @click="getUrl">地址</v-btn>
+                            <v-btn @click="downloadLocal">下载</v-btn>
+                            </v-btn-toggle>
+                        </v-row>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+
+        </v-row>
+      </v-container>
+
+
+    </v-main>
+    </v-app>
+  </div>
+
+  <script src="/assets/js/vue.js"></script>
+  <script src="/assets/js/axios.min.js"></script>
+  <script src="/assets/js/vuetify.min.js"></script>
+  <script src="/assets/js/jquery-3.6.0.min.js"></script>
+  <script src="/assets/layer/layer.js"></script>
+  <script src="/assets/js/clipboard.min.js"></script>
+  <script src="/assets/js/freemp3.js"></script>
+  <script src="/assets/js/APlayer.min.js"></script>
+  <script>
+    new Vue({
+      el: '#app',
+      delimiters:['${','}'],
+      vuetify: new Vuetify(),
+      data: () => ({
+        drawer: null,
+        group: null,
+        toggle_exclusive: undefined,
+        items: [
+	        ['mdi-cloud-download', '离线','showoffline'],
+	        ['mdi-music', '音乐','showmusic']
+        ],
+        types:[ //类别选择数据或者从后台获取数据
+          {name:"A",value:"YQB"},
+          {name:"B",value:"migu"},
+          {name:"C",value:"YQD"},
+        ],
+        select:{name:"A",value:"YQB"},
+        showcontainer:'showoffline',
+        showpassword:false,
+        addofflineok:false,
+        tab: "save",
+        email:'',
+        password:'',
+        token:'',
+        offlineurl:'',
+        offlinecode:'',
+        offlinetakecode:'',
+        aria2Url:'http://127.0.0.1:6800/jsonrpc',
+        aria2Token:'123456',
+        aria2Dir:'/downloads',
+        takeofflineok:false,
+        takeresult:null,
+        hello:"控制台",
+        actionTitle:'离线',
+        showConfig:false,
+        showSetting:false,
+        authinfo:{{ auth_info|safe }},
+        player:null,
+        kw:'',
+        page:1,
+        list:[],
+      }),
+      computed: {
+       
+      },
+      watch: {
+        group () {
+            this.drawer = false
+        },
+        aria2Url(newName) {
+          localStorage.aria2Url = newName;
+        },
+        aria2Token(newName) {
+          localStorage.aria2Token = newName;
+        },
+        aria2Dir(newName) {
+          localStorage.aria2Dir = newName;
+        },
+      },
+      mounted: function () {
+        this.$nextTick(function () {
+            this.player = new APlayer({
+	            container: document.getElementById('aplayer'),
+	            lrcType: 3,
+	            audio: []
+	        });
+            if (this.authinfo.email) {
+                this.email = this.authinfo.email;
+            }
+            if (this.authinfo.password) {
+                this.password = this.authinfo.password;
+            }
+            if (this.authinfo.token) {
+                this.token = this.authinfo.token;
+            }
+
+            if (localStorage.aria2Url) {
+                this.aria2Url = localStorage.aria2Url;
+            }
+            if (localStorage.aria2Token) {
+                this.aria2Token = localStorage.aria2Token;
+            }
+            if (localStorage.aria2Dir) {
+                this.aria2Dir = localStorage.aria2Dir;
+            }
+        })
+      },
+      methods: {
+        login:function(){
+          var that = this;
+          localStorage.email = that.email;
+          localStorage.password = that.password;
+          var data = JSON.stringify({
+            "email": this.email,
+            "password": this.password
+          });
+          layer.load();
+          var config = {
+            method: 'post',
+            url: 'https://dash.vm2.me/auth/login',
+            headers: { 
+              'Content-Type': 'application/json', 
+              'Authorization': 'Bearer '+that.token,
+            },
+            data : data
+          };
+
+          axios(config)
+          .then(function (response) {
+            //console.log(JSON.stringify(response.data));
+            layer.closeAll('loading');
+            var result = response.data;
+            if(result['status']=='ok'){
+                    that.token = result['data']['token'];
+                    localStorage.token = that.token;
+                    layer.alert("登陆成功");
+                    that.authinfo = {'email':that.email,'password':that.password,'token':that.token};
+                    that.save_auth();
+            }else{
+                    layer.alert(result['message']);
+            }
+          })
+          .catch(function (error) {
+             layer.closeAll('loading');
+            layer.alert("出现错误，稍后重试");
+            console.log(error);
+          });
+
+        },
+        save_auth:function(){
+          var that = this;
+          var data = JSON.stringify(that.authinfo);
+
+          var params = new URLSearchParams();
+          params.append('setting', data);
+   
+
+          axios.post('/offline/save_auth', params,{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
+          .then(function (response) {
+            //console.log(JSON.stringify(response.data));
+            var result = response.data;
+            layer.alert(result);
+          })
+          .catch(function (error) {
+            layer.alert("出现错误，稍后重试");
+            console.log(error);
+          });
+        },
+        addoffline:function(){
+        var that = this;
+        var data = JSON.stringify({
+            "url": that.offlineurl
+          });
+        layer.load();
+
+        var config = {
+          method: 'post',
+          url: 'https://file.vm2.me/add/download-task',
+          headers: { 
+            'Content-Type': 'application/json', 
+            'Authorization': 'Bearer '+that.token, 
+          },
+          data : data
+        };
+          axios(config)
+          .then(function (response) {
+            //console.log(JSON.stringify(response.data));
+            layer.closeAll('loading');
+            var result = response.data;
+            if(result['status']=='ok'){
+                  that.addofflineok = true;
+                  that.offlinecode = result['data']['id'];
+                  that.offlinetakecode = result['data']['id'];
+            }else{
+                    layer.alert(result['message']);
+            }
+          })
+          .catch(function (error) {
+            layer.closeAll('loading');
+            layer.alert("出现错误，稍后重试");
+            console.log(error);
+          });
+      },
+        offlinetake:function(){
+        var that = this;
+        layer.load();
+        var config = {
+          method: 'get',
+          url: 'https://file.vm2.me/take/file?id='+that.offlinetakecode,
+          headers: { 
+            'Content-Type': 'application/json', 
+            'Authorization': 'Bearer '+that.token,
+          }
+        };
+
+        axios(config)
+        .then(function (response) {
+          //console.log(JSON.stringify(response.data));
+          var result = response.data;
+          if(result['status']=='ok'){
+              that.takeofflineok = true;
+              that.takeresult = result;
+              if(result['data']['targetType']=='folder'){
+                  //that.offlinelist(result['data']['id']);
+                  that.offlinelist(that.offlinetakecode);
+              }else{
+                  layer.closeAll('loading');
+              }
+          }else{
+              layer.closeAll('loading');
+              layer.alert(result['message']);
+          }
+        })
+        .catch(function (error) {
+          layer.closeAll('loading');
+          layer.alert("出现错误，稍后重试");
+          console.log(error);
+        });
+
+
+      },
+        offlinelist:function(id){
+          var that = this;
+          layer.load();
+          var config = {
+            method: 'get',
+            url: 'https://file.vm2.me/get/file-list?id='+id,
+            headers: { 
+              'Content-Type': 'application/json', 
+              'Authorization': 'Bearer '+that.token,
+            }
+          };
+
+          axios(config)
+          .then(function (response) {
+            //console.log(JSON.stringify(response.data));
+            var result = response.data;
+                if(result['status']=='ok'){
+                    Vue.set(that.takeresult,'filelist',result['data']);
+                }else{
+                    layer.alert(result['message']);
+                }
+                layer.closeAll('loading');
+            })
+            .catch(function (error) {
+              layer.closeAll('loading');
+              layer.alert("出现错误，稍后重试");
+              console.log(error);
+            });
+      },
+        getlink:function(id){
+          var that = this;
+          layer.load();
+          var config = {
+            method: 'get',
+            url: 'https://file.vm2.me/take/file?id='+id,
+            headers: { 
+              'Content-Type': 'application/json', 
+              'Authorization': 'Bearer '+that.token,
+            }
+          };
+          axios(config)
+          .then(function (response) {
+            var result = response.data;
+            layer.closeAll('loading');
+            if(result['status']=='ok'){
+                var linkurl = result['data']['url']+'##'+result['data']['name'];
+                var html = '<div class="input-group"><textarea class="form-control " id="bar">'+linkurl+'</textarea><div style="text-align:center"> <button class="v-btn v-btn--has-bg theme--light v-size--default copybtn" data-clipboard-target="#bar">复制</button></div></div>';
+                layer.open({
+                    type: 1,
+                    shadeClose: true,
+                    content: html
+                });
+                
+            }else{
+                layer.alert(result['message']);
+            }
+          })
+          .catch(function (error) {
+            layer.closeAll('loading');
+            layer.alert("出现错误，稍后重试");
+            console.log(error);
+          });
+        },
+        setting:function(){
+          var index=layer.open({
+            type: 1,
+            shadeClose: true,
+            content: $('#settingdiv')
+          });
+          layer.full(index);
+        },
+        search:function(){
+          var that = this;
+          that.page=1;
+          that.list=[];
+          that.player.list.clear();
+          var query="text="+that.kw+"&page="+that.page+"&type="+that.select.value;
+          var encodequery = encode(query);
+          var data = getQueryVariable(encodequery,'data');
+          var version = getQueryVariable(encodequery,'v');
+          axios.post('/musicquery', {
+            data: data,
+            v: version
+          })
+          .then(function (response) {
+            if(response.data.code=200){
+              var songs = [];
+              $.each(response.data.data.list, function( index, value ) {
+                //that.list.push(value);
+                songs.push({
+                    name: value.name,
+                    artist: value.artist,
+                    url: value.url_128,
+                    cover: value.cover,
+                    lrc:   "/musiclrcquery?url="+encodeURIComponent(value.lrc),
+                    theme: '#ebd0c2'
+                })
+                that.list.push(value);
+              });
+              that.player.list.add(songs);
+            }
+            //console.log(response.data);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+        },
+        nextpage:function(){
+          var that = this;
+          that.page+=1;
+          var query="text="+that.kw+"&page="+that.page+"&type="+that.select.value;
+          var encodequery = encode(query);
+          var data = getQueryVariable(encodequery,'data');
+          var version = getQueryVariable(encodequery,'v');
+          axios.post('/musicquery', {
+            data: data,
+            v: version
+          })
+          .then(function (response) {
+            if(response.data.code=200){
+              var songs = [];
+              $.each(response.data.data.list, function( index, value ) {
+                //that.list.push(value);
+                songs.push({
+                    name: value.name,
+                    artist: value.artist,
+                    url: value.url_128,
+                    cover: value.cover,
+                    theme: '#ebd0c2'
+                })
+                that.list.push(value);
+              });
+              that.player.list.add(songs);
+            }
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+        },
+        getUrl:function(){
+            var index = this.player.list.index;
+            var songlist = this.player.list;
+            if(songlist.length<=0){
+                layer.alert("没有歌曲");
+                return false;
+            }
+            var name = songlist.audios[index].name;
+            var artist = songlist.audios[index].artist;
+            var url = songlist.audios[index].url;
+            layer.open({
+                type: 1, 
+                content: '<a href="'+url+'" targe="_blank">'+url+'</a>' //这里content是一个普通的String
+            });
+        },
+        download:function(){
+          var index = this.player.list.index;
+          var songlist = this.player.list;
+          var name = songlist.audios[index].name;
+          var artist = songlist.audios[index].artist;
+          var url = songlist.audios[index].url;
+          this.aria2(url,name+'-'+artist+'.mp3');
+        },
+        downloadLocal:function(){
+          var that = this;
+          var index = this.player.list.index;
+          var songlist = this.player.list;
+          var song = this.list[index];
+          var data = JSON.stringify(song);
+          var config = {
+            method: 'post',
+            url: '/musicdownload',
+            headers: { 
+              'Content-Type': 'application/json'
+            },
+            data : data
+          };
+          axios(config)
+            .then(function (response) {
+              layer.msg(response.data.data);
+              console.log(response.data);
+            })
+            .catch(function (error) {
+              console.log(error);
+            });
+        },
+        aria2:function(fileurl,filename){
+          var url = this.aria2Url;
+          var data = {"jsonrpc": "2.0", "id": "qwer", "method": "aria2.addUri", "params": ["token:"+this.aria2Token,[fileurl],{"out":filename ,"dir":this.aria2Dir}]}
+          $.ajax({
+              url: url,
+              data: JSON.stringify(data),
+              type: "post",
+              //async: false,//false为同步
+              dataType: "json",
+              success: function(obj) {
+                  layer.alert('歌曲下载成功', {icon: 6});
+              }, 
+              error: function (jqXHR, textStatus, errorThrown) {
+                    layer.alert('歌曲下载失败,请检查Aria2配置', {icon: 5});
+              }
+          });
+        }
+    
+      }
+})
+
+
+    var clipboard = new ClipboardJS('.copybtn');
+
+    clipboard.on('success', function(e) {
+        layer.alert("复制成功");
+    });
+
+
+    function getQueryVariable(query,variable) {
+        var query = query;
+        var vars = query.split('&');
+        for (var i = 0; i < vars.length; i++) {
+            var pair = vars[i].split('=');
+            if (decodeURIComponent(pair[0]) == variable) {
+                return decodeURIComponent(pair[1]);
+            }
+        }
+    }
+  </script>
+</body>
+</html>

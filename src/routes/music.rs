@@ -13,7 +13,7 @@ pub fn create_music_router(config:&ServerConfig)->Router{
 
     let music_data_dir = format!("{}/music-data",dir);
     let music_routes = Router::new()
-    .route("/", get(music::music_home))
+    .route("/music", get(music::music_home))
     .route("/musicquery",post(music::music_query))
     .route("/musiclrcquery",get(music::music_lrc_query))
     .route("/musicdownload",post(music::music_download))
