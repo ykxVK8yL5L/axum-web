@@ -765,7 +765,7 @@ max-width="600px"
         getUrl:function(){
             var index = this.player.list.index;
             var songlist = this.player.list;
-            if(songlist.length<=0){
+            if(songlist.length<=0||songlist==undefined){
                 layer.alert("没有歌曲");
                 return false;
             }
@@ -778,8 +778,12 @@ max-width="600px"
             });
         },
         download:function(){
-          var index = this.player.list.index;
           var songlist = this.player.list;
+          if(songlist.length<=0||songlist==undefined){
+                layer.alert("没有歌曲");
+                return false;
+          }
+          var index = this.player.list.index;
           var name = songlist.audios[index].name;
           var artist = songlist.audios[index].artist;
           var url = songlist.audios[index].url;
