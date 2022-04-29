@@ -32,19 +32,19 @@
           </v-list-item>
         </v-list>
         <v-list>
-            <v-list-item-group  mandatory	color="white">
+            <v-list-item-group v-model="navselected"  mandatory	color="white">
                 <v-list-item
-                  v-for="([icon, text, key], i) in items"
+                  v-for="(item, i) in items"
                   :key="i"
                   link
-                  @click="showcontainer=key;actionTitle=text"
+                  @click="switchContainer(item)"
                 >
                   <v-list-item-icon>
-                    <v-icon>${ icon }</v-icon>
+                    <v-icon>${ item.icon }</v-icon>
                   </v-list-item-icon>
-    
+      
                   <v-list-item-content>
-                    <v-list-item-title>${ text }</v-list-item-title>
+                    <v-list-item-title>${ item.label }</v-list-item-title>
                   </v-list-item-content>
                 </v-list-item>
              </v-list-item-group>
@@ -70,7 +70,7 @@
           <v-list-item
             @click="showSetting=true"
           >
-            <v-list-item-title>Aria2配置</v-list-item-title>
+            <v-list-item-title>配置</v-list-item-title>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -154,11 +154,25 @@ max-width="600px"
     >
       <v-card>
         <v-card-title>
-          <span class="text-h5">下载配置</span>
+          <span class="text-h5">配置</span>
         </v-card-title>
         <v-card-text>
           <v-container>
             <v-row>
+                  <v-col cols="12">
+                    <v-select
+                      v-model="selectaction"
+                      hint="默认功能"
+                      :items="items"
+                      item-text="label"
+                      item-value="action"
+                      label="默认功能"
+                      @change="switchContainer(selectaction)"
+                      persistent-hint
+                      return-object
+                      single-line
+                    ></v-select>
+                </v-col>
              
                 <v-col cols="12">
                     <v-text-field
@@ -190,13 +204,6 @@ max-width="600px"
             @click="showSetting = false"
           >
             关闭
-          </v-btn>
-          <v-btn
-            color="blue darken-1"
-            text
-            @click="showSetting = false"
-          >
-            保存
           </v-btn>
         </v-card-actions>
       </v-card>
@@ -321,7 +328,7 @@ max-width="600px"
                 sm="3"
               >
                  <v-select
-                          v-model="select"
+                          v-model="selectedtype"
                           :items="types"
                           item-text="name"
                           item-value="value"
@@ -401,7 +408,7 @@ max-width="600px"
   <script src="/assets/js/freemp3.js"></script>
   <script src="/assets/js/APlayer.min.js"></script>
   <script>
-    new Vue({
+    var app = new Vue({
       el: '#app',
       delimiters:['${','}'],
       vuetify: new Vuetify(),
@@ -410,16 +417,17 @@ max-width="600px"
         group: null,
         toggle_exclusive: undefined,
         items: [
-	        ['mdi-cloud-download', '离线','showoffline'],
-	        ['mdi-music', '音乐','showmusic']
+	        {'icon':'mdi-cloud-download', 'label':'离线','action':'showoffline'},
+	        {'icon':'mdi-music', 'label':'音乐','action':'showmusic'}
         ],
         types:[ //类别选择数据或者从后台获取数据
           {name:"A",value:"YQB"},
           {name:"B",value:"migu"},
           {name:"C",value:"YQD"},
         ],
-        select:{name:"A",value:"YQB"},
-        showcontainer:'showoffline',
+        selectaction:null,
+        selectedtype:null,
+        showcontainer:'',
         showpassword:false,
         addofflineok:false,
         tab: "save",
@@ -435,13 +443,14 @@ max-width="600px"
         takeofflineok:false,
         takeresult:null,
         hello:"控制台",
-        actionTitle:'离线',
+        actionTitle:'',
         showConfig:false,
         showSetting:false,
         authinfo:{{ auth_info|safe }},
         player:null,
         kw:'',
         page:1,
+        navselected:0,
         list:[],
       }),
       computed: {
@@ -459,6 +468,10 @@ max-width="600px"
         },
         aria2Dir(newName) {
           localStorage.aria2Dir = newName;
+        },
+        selectaction(newName) {
+          //localStorage.selectaction = newName;
+          localStorage.setItem("selectaction", JSON.stringify(newName))
         },
       },
       mounted: function () {
@@ -487,9 +500,27 @@ max-width="600px"
             if (localStorage.aria2Dir) {
                 this.aria2Dir = localStorage.aria2Dir;
             }
+
+
+            if (localStorage.selectaction) {
+              this.selectaction = JSON.parse(localStorage.getItem("selectaction"));
+              this.navselected = this.items.findIndex( nav => nav.action === this.selectaction.action );
+            }else{
+              this.selectaction = this.items[0];
+            }
+            this.showcontainer = this.selectaction.action;
+            this.actionTitle = this.selectaction.label;
+            this.selectedtype = this.types[0];
+
         })
       },
       methods: {
+        switchContainer:function(obj){
+      		this.showcontainer = obj.action;
+      		this.actionTitle = obj.label;
+      		this.navselected = this.items.findIndex( nav => nav.action === obj.action );
+
+      	},
         login:function(){
           var that = this;
           localStorage.email = that.email;
@@ -765,10 +796,10 @@ max-width="600px"
         getUrl:function(){
             var index = this.player.list.index;
             var songlist = this.player.list;
-            if(songlist.length<=0||songlist==undefined){
+            if(songlist.audios.length<=0||songlist==undefined){
                 layer.alert("没有歌曲");
                 return false;
-            }
+          }
             var name = songlist.audios[index].name;
             var artist = songlist.audios[index].artist;
             var url = songlist.audios[index].url;
@@ -779,7 +810,7 @@ max-width="600px"
         },
         download:function(){
           var songlist = this.player.list;
-          if(songlist.length<=0||songlist==undefined){
+          if(songlist.audios.length<=0||songlist==undefined){
                 layer.alert("没有歌曲");
                 return false;
           }
@@ -791,8 +822,12 @@ max-width="600px"
         },
         downloadLocal:function(){
           var that = this;
-          var index = this.player.list.index;
           var songlist = this.player.list;
+          if(songlist.audios.length<=0||songlist==undefined){
+                layer.alert("没有歌曲");
+                return false;
+          }
+          var index = this.player.list.index;
           var song = this.list[index];
           var data = JSON.stringify(song);
           var config = {
