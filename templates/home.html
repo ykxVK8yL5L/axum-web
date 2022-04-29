@@ -730,7 +730,7 @@ max-width="600px"
           that.page=1;
           that.list=[];
           that.player.list.clear();
-          var query="text="+that.kw+"&page="+that.page+"&type="+that.select.value;
+          var query="text="+that.kw+"&page="+that.page+"&type="+that.selectedtype.value;
           var encodequery = encode(query);
           var data = getQueryVariable(encodequery,'data');
           var version = getQueryVariable(encodequery,'v');
@@ -764,7 +764,7 @@ max-width="600px"
         nextpage:function(){
           var that = this;
           that.page+=1;
-          var query="text="+that.kw+"&page="+that.page+"&type="+that.select.value;
+          var query="text="+that.kw+"&page="+that.page+"&type="+that.selectedtype.value;
           var encodequery = encode(query);
           var data = getQueryVariable(encodequery,'data');
           var version = getQueryVariable(encodequery,'v');
