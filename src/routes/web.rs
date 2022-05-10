@@ -4,8 +4,7 @@ use axum::{
     response::{IntoResponse},
 };
 use crate::controllers::{
-    index::{root,greet},
-    offline::{offline_home},
+    index::{root,greet}
 };
 use crate::{config::env::ServerConfig};
 use std::fs;
@@ -19,7 +18,7 @@ pub async fn home() -> impl IntoResponse {
         Err(e) => "{}".to_string(),
         Ok(f) => f,
     };
-    let home_template = HomeTemplate { name, auth_info };
+    let home_template = HomeTemplate { name };
     HtmlTemplate(home_template)
 }
 

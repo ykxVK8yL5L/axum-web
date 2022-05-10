@@ -18,7 +18,6 @@ pub struct HelloTemplate {
 #[template(path = "home.html")]
 pub struct HomeTemplate {
     pub name: String,
-    pub auth_info: String,
 }
 
 
@@ -28,14 +27,6 @@ pub struct HomeTemplate {
 pub struct MusicTemplate {
     pub name: String,
 }
-
-#[derive(Template)]
-#[template(path = "offline.html")]
-pub struct OfflineTemplate {
-    pub name: String,
-    pub auth_info: String,
-}
-
 
 
 #[derive(Template)]
