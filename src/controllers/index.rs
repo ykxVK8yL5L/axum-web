@@ -21,12 +21,6 @@ pub async fn greet(extract::Path(name): extract::Path<String>) -> impl IntoRespo
 
 // ajax请求示例
 
-// #[derive(Deserialize, Debug)]
-// #[allow(dead_code)]
-// pub struct Input {
-//     pub setting: String,
-// }
-
 // 前台ajax代码
 // axios.post('/offline/save_auth', params,{headers: {'Content-Type': 'application/x-www-form-urlencoded'}})
 // .then(function (response) {
@@ -39,14 +33,19 @@ pub async fn greet(extract::Path(name): extract::Path<String>) -> impl IntoRespo
 //   console.log(error);
 // });
 
+// #[derive(Deserialize, Debug)]
+// #[allow(dead_code)]
+// pub struct Input {
+//     pub setting: String,
+// }
 
+// 后台ajax代码
 // pub async fn offline_save_auth(form: Form<Input>) -> String {
 //     let input: Input = form.0;
 //     match fs::write("setting.json",input.setting) {
 //         Err(result) => format!("保存失败"),
 //         Ok(_) => format!("保存成功"),
 //     }
-
 // }
 
 // ajax结束

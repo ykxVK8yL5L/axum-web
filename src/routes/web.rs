@@ -7,17 +7,17 @@ use crate::controllers::{
     index::{root,greet}
 };
 use crate::{config::env::ServerConfig};
-use std::fs;
+// use std::fs;
 use crate::utils::{template::{HtmlTemplate,HomeTemplate}};
 
 
 pub async fn home() -> impl IntoResponse {
     let name = "首页".to_string();
     //let auth_info = fs::read_to_string("setting.json").expect("Something went wrong reading the file");
-    let auth_info = match fs::read_to_string("setting.json") {
-        Err(e) => "{}".to_string(),
-        Ok(f) => f,
-    };
+    // let auth_info = match fs::read_to_string("setting.json") {
+    //     Err(e) => "{}".to_string(),
+    //     Ok(f) => f,
+    // };
     let home_template = HomeTemplate { name };
     HtmlTemplate(home_template)
 }
