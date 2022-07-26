@@ -15,6 +15,19 @@ table! {
     }
 }
 
+
+table! {
+    videos (id) {
+        id -> Integer,
+        name -> Text,
+        title -> Text,
+        cid -> Text,
+        size -> Nullable<Integer>,
+        img -> Nullable<Text>,
+        created_at -> Timestamp,
+    }
+}
+
 table! {
     users (id) {
         id -> Integer,
@@ -30,5 +43,6 @@ joinable!(login_history -> users (user_id));
 allow_tables_to_appear_in_same_query!(
     login_history,
     songs,
+    videos,
     users,
 );

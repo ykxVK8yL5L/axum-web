@@ -8,17 +8,33 @@
 <meta name="description" content="">
 <meta name="keywords" content="">
 <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+<link href="/assets/DataTables/datatables.min.css" rel="stylesheet">
 </head>
 <body>
-<div id="app">
-   ${message}
+<div id="app" class="container">
+   <h1 class="text-center">${message}</h1>
+   <div class="row">
+        <div class="col-12">
+            <table class="table" id="servers-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>ID</th>
+                    <th>标题</th>
+                    <th>CID</th>
+                  </tr>
+                </thead>
+              </table>
+        </div>
+  </div>
 </div>
 <script src="/assets/js/jquery-3.6.0.min.js"></script>
 <script src="/assets/js/popper.min.js"></script>
 <script src="/assets/js/bootstrap.min.js"></script>
-<script src="/assets/js/axios.min.js"></script>
-<script src="/assets/js/vue.js"></script>
 <script src="/assets/layer/layer.js"></script>
+<script src="/assets/DataTables/datatables.min.js"></script>
+<script src="/assets/js/vue-3.js"></script>
+<script src="/assets/js/axios.min.js"></script>
 <script>
 const App = {
     compilerOptions: {
@@ -26,15 +42,83 @@ const App = {
     },
     data() {
         return {
-            message: "Hello Element Plus",
+            message: "数据表格测试",
+            table: null,
         };
     },
+    mounted : function(){
+        var that = this;
+        this.table =  $('#servers-table').DataTable({
+            //"scrollX": true,
+            processing: true,
+            //serverSide: true,
+            "pageLength": 2,
+            "order": [[ 1, "desc" ]],
+            ajax: '/videos/all',
+            select: {
+                style: 'single',
+                //selector: 'td:not(:nth-of-type(2))'
+            },
+            columns:[
+                    {data: 'img', name: '',"render": function ( data, type, row, meta ){
+                        return "<a onclick='viewimg(\""+data+"\")' class='btn btn-outline btn-primary btn-sm'>图</a>";
+                      }
+                    },
+                    {data: 'id', name: 'id'},
+                    {data: 'title', name: 'title'},
+                    {data: 'cid', name: 'cid'},
+            ],
+            language: {
+                "sProcessing": "处理中...",
+                "sLengthMenu": "显示 _MENU_ 项结果",
+                "sZeroRecords": "没有匹配结果",
+                "sInfo": "显示第 _START_ 至 _END_ 项结果，共 _TOTAL_ 项",
+                "sInfoEmpty": "显示第 0 至 0 项结果，共 0 项",
+                "sInfoFiltered": "(由 _MAX_ 项结果过滤)",
+                "sInfoPostFix": "",
+                "sSearch": "搜索:",
+                "sUrl": "",
+                "sEmptyTable": "表中数据为空",
+                "sLoadingRecords": "载入中...",
+                "sInfoThousands": ",",
+                "oPaginate": {
+                    "sFirst": "首页",
+                    "sPrevious": "上页",
+                    "sNext": "下页",
+                    "sLast": "末页"
+                },
+                "oAria": {
+                    "sSortAscending": ": 以升序排列此列",
+                    "sSortDescending": ": 以降序排列此列"
+                }
+            }
+        });
+    },
     methods: {
-       
+      viewimg:function(imgsrc){
+        var that = this;
+        layer.ready(function(){
+    	    var index = layer.load(2);
+          layer.open({
+                    type: 1,
+                    title: false,
+                    closeBtn: 1,
+                    area: ['80%','400'], //宽高
+                    skin: 'layui-layer-nobg', //没有背景色
+                    shadeClose: true,
+                    content: '<div style="text-align:center;"><img height="400" src="'+imgsrc+'"/></div>'
+                });
+          layer.close(index);
+        })
+
+    }
     }
 };
-const app = Vue.createApp(App);
-app.mount("#app");
+const app = Vue.createApp(App).mount('#app');
+function viewimg(src){
+  app.viewimg(src);
+}
+
 </script>
 </body>
 </html>
