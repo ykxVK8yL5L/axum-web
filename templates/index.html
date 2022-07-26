@@ -9,6 +9,7 @@
 <meta name="keywords" content="">
 <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
 <link href="/assets/DataTables/datatables.min.css" rel="stylesheet">
+<link href="/assets/DataTables/Responsive-2.2.9/css/responsive.bootstrap5.min.css" rel="stylesheet">
 </head>
 <body>
 <div id="app" class="container">
@@ -22,6 +23,9 @@
                     <th>ID</th>
                     <th>文件名</th>
                     <th>CID</th>
+                    <th>大小</th>
+                    <th>创建时间</th>
+                    <th>操作</th>
                   </tr>
                 </thead>
               </table>
@@ -33,6 +37,7 @@
 <script src="/assets/js/bootstrap.min.js"></script>
 <script src="/assets/layer/layer.js"></script>
 <script src="/assets/DataTables/datatables.min.js"></script>
+<script src="/assets/DataTables/Responsive-2.2.9/js/dataTables.responsive.min.js"></script>
 <script src="/assets/js/vue-3.js"></script>
 <script src="/assets/js/axios.min.js"></script>
 <script>
@@ -44,29 +49,46 @@ const App = {
         return {
             message: "数据表格测试",
             table: null,
+            gateway: "",
         };
     },
     mounted : function(){
         var that = this;
         this.table =  $('#servers-table').DataTable({
-            //"scrollX": true,
+            "scrollX": true,
             processing: true,
             serverSide: true,
             "pageLength": 10,
-            "order": [[ 1, "desc" ]],
+            "order": [],
             ajax: '/videos/all',
             select: {
                 style: 'single',
                 //selector: 'td:not(:nth-of-type(2))'
             },
             columns:[
-                    {data: 'img', name: '',"render": function ( data, type, row, meta ){
+                    {data: 'img', name: '',"searchable": false,orderable: false,"render": function ( data, type, row, meta ){
                         return "<a onclick='viewimg(\""+data+"\")' class='btn btn-outline btn-primary btn-sm'>图</a>";
                       }
                     },
                     {data: 'id', name: 'id'},
-                    {data: 'name', name: 'name'},
-                    {data: 'cid', name: 'cid'},
+                    {data: 'name', name: 'name',render: function ( data, type, row, meta ){
+                      return "<a href='vlc://"+that.gateway+"/"+row.cid+"/"+data+"' target='_blank'>"+data+"</a>";
+                      }
+                    },
+                    {data: 'cid', name: 'cid',"searchable": false,orderable: false,"render": function ( data, type, row, meta ){
+                        return "<a href='"+that.gateway+"/"+data+"/' target='_blank'>"+data+"</a>";
+                      }
+                    },
+                    { data: 'size', name: 'size',"render": function ( data, type, row, meta ){
+                        return bytesToSize(data);
+                      }
+                    },
+                    { data: 'created_at', name: 'created_at'},
+                    { data: 'id', "searchable": false,orderable: false,name: 'action',"render": function ( data, type, row, meta ){
+                          var obj= JSON.stringify(row);
+                          return "<button class='btn btn-outline btn-primary btn-sm' onclick='edit("+obj+")'>编辑</button><button class='btn btn-outline btn-danger btn-sm' onclick='del("+obj+")'>删除</button>";
+                      } 
+                    }
             ],
             language: {
                 "sProcessing": "处理中...",
@@ -98,7 +120,7 @@ const App = {
       viewimg:function(imgsrc){
         var that = this;
         layer.ready(function(){
-    	    var index = layer.load(2);
+          var index = layer.load(2);
           layer.open({
                     type: 1,
                     title: false,
@@ -110,13 +132,35 @@ const App = {
                 });
           layer.close(index);
         })
-
-    }
+      },
+      edit:function(video){
+          console.log(video);
+      },
+      del:function(video){
+          console.log(video);
+      },
     }
 };
 const app = Vue.createApp(App).mount('#app');
+
+
 function viewimg(src){
   app.viewimg(src);
+}
+function edit(obj){
+    app.edit(obj);
+}
+function del(obj){
+    app.del(obj);
+    $(".dtr-modal-close").click();
+}
+function bytesToSize(bytes) {
+    if(bytes === 0) return '0 B';
+    var k = 1024;
+    var sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
+    var i = Math.floor(Math.log(bytes) / Math.log(k));
+    return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+    // return parseFloat(bytes / Math.pow(k, i)).toFixed(2)  + sizes[i];
 }
 
 </script>

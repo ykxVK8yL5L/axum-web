@@ -33,6 +33,8 @@ impl Video {
         videos.order(id.asc()).load::<Video>(conn)
     }
     pub fn pagination(params:&HashMap<String, String>,conn: &Connection) -> QueryResult<String> {
+
+      
         let start:i64 = params.get("start").unwrap().parse::<i64>().unwrap();
         let keyword:String = params.get("search[value]").unwrap().to_string();
         let length:i64 = params.get("length").unwrap().parse::<i64>().unwrap();
@@ -59,7 +61,7 @@ impl Video {
 
 
 fn query<'a>(keyword: &String) -> videos::BoxedQuery<'a, diesel::sqlite::Sqlite> {
-    let mut query = videos::table.order(videos::id.desc()).into_boxed();
+    let mut query = videos::table.into_boxed();
     if keyword.len() > 0 {
         query = query.filter(title.like("%".to_string() + keyword + "%")).or_filter(name.like("%".to_string() + keyword + "%"));
     }
