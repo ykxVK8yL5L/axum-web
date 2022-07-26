@@ -13,24 +13,57 @@
 </head>
 <body>
 <div id="app" class="container">
-   <h1 class="text-center">${message}</h1>
    <div class="row">
         <div class="col-12">
-            <table class="table" id="servers-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>ID</th>
-                    <th>文件名</th>
-                    <th>CID</th>
-                    <th>大小</th>
-                    <th>创建时间</th>
-                    <th>操作</th>
-                  </tr>
-                </thead>
-              </table>
+            <div class="card">
+              <div class="card-header">
+                <div class="input-group mb-3">
+                  <div class="input-group-prepend">
+                      <div class="dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                          更多
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                          <li><a  class="btn btn-outline-primary dropdown-item" @click="syncUpload">同步</a></li> 
+                          <li></li><a  class="btn btn-outline-primary dropdown-item" @click="addTask">新增下载</a> </li>
+                          <li></li><a class="btn btn-outline-primary dropdown-item" @click="createM3u">生成m3u</a></li>
+                          <li></li><a class="btn btn-outline-primary dropdown-item" @click="addServer">新增文件记录</a></li>
+                          <li></li><a  class="btn btn-outline-primary dropdown-item" @click="addGateway">添加网关</a> </li>
+                        </ul>
+                      </div>
+                  </div>
+                  <select v-model="gateway">                                        
+                      <option :value="gw.url" v-for="gw in gatewaylist" >${gw.name}</option>                                    
+                  </select>
+                  <div class="input-group-append">
+                      <span class="input-group-text" id="basic-addon1" @click="savegateway">默认</span>
+                  </div>
+          
+              </div>
+              <div class="alert alert-info">
+                  <div><span class="float-left">${gateway}</span>    <button type="button" class="btn btn-link float-right" @click="delGateway">删除</button></div>
+                  <div style="clear:both"></div>
+              </div>    
+              </div>
+              <div class="card-body">
+                <table class="table" class="table table-bordered display nowrap table-striped" id="servers-table" style="width:100%">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>ID</th>
+                      <th>文件名</th>
+                      <th>CID</th>
+                      <th>大小</th>
+                      <th>创建时间</th>
+                      <th>操作</th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+            </div>
         </div>
-  </div>
+    </div>
+</div>
 </div>
 <script src="/assets/js/jquery-3.6.0.min.js"></script>
 <script src="/assets/js/popper.min.js"></script>
@@ -47,7 +80,6 @@ const App = {
     },
     data() {
         return {
-            message: "数据表格测试",
             table: null,
             gateway: "",
         };
