@@ -1,5 +1,5 @@
 use std::str;
-use std::path::Path;
+use std::collections::HashMap;
 use axum::{
     body::Body,
     Json,
@@ -7,6 +7,7 @@ use axum::{
     http::{Request, StatusCode},
     response::{IntoResponse},
 };
+use tracing::info;
 
 use crate::{
     db::Pool,
@@ -17,25 +18,16 @@ use crate::{
     constants,
 };
 
-#[derive(Debug, Serialize, Deserialize)]
-pub struct VideosResult {
-    pub data: Vec<Video>,
-}
 
 
-pub async fn videos_all(Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
-    match Video::get_all(&pool.get().unwrap()) {
-        Ok(video) => {
-            let result = VideosResult {
-                data: video,
-            };
-            Ok(serde_json::to_string(&result).unwrap())
+pub async fn videos_all(Query(params): Query<HashMap<String, String>>,Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
+    //info!("{}", params.get("search[value]").unwrap());
+    match Video::pagination(&params,&pool.get().unwrap()) {
+        Ok(result) => {
+            Ok(result)
         }
         Err(_) =>{
             Ok(String::from("not ok"))
         } 
     }
 }
-
-
-
