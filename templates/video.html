@@ -15,6 +15,50 @@
 <div id="app" class="container">
    <div class="row">
 
+    <div id="server" style="display:none;">
+      <div class="card">
+          <div class="card-body">
+          <form class="form" role="form">
+              <input type="hidden" class="form-control" id="sid" v-model="sid"/>
+                  <div class="form-group row">
+                      <label for="name" class="col-sm-2 control-label">文件名称</label>
+                      <div class="col-sm-10">
+                          <input type="text" class="form-control" id="name" v-model="name"
+                              placeholder="文件名称">
+                      </div>
+                  </div>
+                  <div class="form-group row">
+                    <label for="title" class="col-sm-2 control-label">标题</label>
+                    <div class="col-sm-10">
+                        <input type="text" class="form-control" id="title" v-model="title"
+                            placeholder="名称">
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                      <label for="cid" class="col-sm-2 control-label">CID</label>
+                      <div class="col-sm-10">
+                          <input type="text" class="form-control" id="cid" v-model="cid"
+                              placeholder="CID">
+                      </div>
+                  </div>
+                  <div class="form-group row">
+                      <label for="img" class="col-sm-2 control-label">图片地址</label>
+                      <div class="col-sm-10">
+                          <input type="text" class="form-control" id="img" v-model="img"
+                              placeholder="图片地址">
+                      </div>
+                  </div>
+                  <div class="form-group row">
+                      <div class="col-sm-12">
+                          <button type="button" class="btn btn-primary" @click="saveServer">保存</button>
+                      </div>
+                  </div>
+              </form>
+          </div>
+      </div>
+  </div>
+
 
     <div id="gatewaydiv" style="display:none;">
       <div class="card">
@@ -104,6 +148,7 @@
 <script src="/assets/DataTables/Responsive-2.2.9/js/dataTables.responsive.min.js"></script>
 <script src="/assets/js/vue-3.js"></script>
 <script src="/assets/js/axios.min.js"></script>
+<script src="/assets/js/moment.js"></script>
 <script>
 const App = {
     compilerOptions: {
@@ -116,6 +161,11 @@ const App = {
             gatewayurl:"",
             gatewayname:"",
             gatewaylist: [],
+            sid:0,
+            title:"",
+            name:"",
+            cid:"",
+            img:"",
         };
     },
     mounted : function(){
@@ -146,10 +196,17 @@ const App = {
                       }
                     },
                     { data: 'size', name: 'size',"render": function ( data, type, row, meta ){
+                        if(typeof(data) == "undefined" || data == null || data == "" || data == 0){
+                          return bytesToSize(0);
+                        }
                         return bytesToSize(data);
                       }
                     },
-                    { data: 'created_at', name: 'created_at'},
+                    { data: 'created_at', name: 'created_at',render: function ( data, type, row, meta ){
+                        var showdate = moment(data);
+                        return showdate.format('YYYY/MM/DD');;
+                      }
+                    },
                     { data: 'id', "searchable": false,orderable: false,name: 'action',"render": function ( data, type, row, meta ){
                           var obj= JSON.stringify(row);
                           return "<button class='btn btn-outline btn-primary btn-sm' onclick='edit("+obj+")'>编辑</button><button class='btn btn-outline btn-danger btn-sm' onclick='del("+obj+")'>删除</button>";
@@ -180,8 +237,7 @@ const App = {
                     "sSortDescending": ": 以降序排列此列"
                 }
             }
-        });
-        
+        });  
         this.$nextTick(function () {
           that.getGateways();
         });
@@ -281,6 +337,111 @@ const App = {
                 layer.closeAll();
             });
       },
+      addServer:function(){
+        this.sid = 0;
+        var index=layer.open({
+            type: 1,
+            shadeClose: true,
+            content: $('#server')
+        });
+        layer.full(index);
+      },
+      saveServer:function(){
+        var that = this;
+        if(!that.cid || 0 === that.cid.trim().length){
+            layer.msg("CID不能为空");
+            return;
+        }
+        layer.load();
+        if(that.sid==0){
+            axios({
+                method:'post',
+                url:'/videos/add',
+                data:{
+                    name: that.name,
+                    title: that.title,
+                    cid: that.cid,
+                    img:that.img,
+                },
+                //headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}
+            }).then(function (response) {
+                layer.msg(response.data);
+                that.table.ajax.reload( null, false );
+                that.resetServer();
+                layer.closeAll();
+            })
+                .catch(function (error) {
+                    console.log(error);
+                    layer.closeAll();
+                });
+        }else{
+            axios({
+                method:'post',
+                url:'/videos/edit',
+                params: { id: that.sid },
+                data:{
+                    name: that.name,
+                    title: that.title,
+                    cid: that.cid,
+                    img:that.img,
+                },
+            }).then(function (response) {
+                $(".dtr-modal-close").click();
+                layer.msg(response.data);
+                that.table.ajax.reload( null, false );
+                that.resetServer();
+                layer.closeAll();
+            }).catch(function (error) {
+                    console.log(error);
+                    layer.closeAll();
+                });
+        }
+
+
+      },
+      edit:function(video){
+          var that = this;
+          that.sid = video.id;
+          that.title = video.title;
+          that.name = video.name;
+          that.cid = video.cid;
+          that.img = video.img;
+          var index=layer.open({
+              type: 1,
+              shadeClose: true,
+              content: $('#server')
+          });
+          layer.full(index);
+      },
+      del:function(video){
+        var that = this;
+        layer.confirm('确定要删除么？不可恢复', {
+          btn: ['确定','取消'] //按钮
+        }, function(){
+            if(!video){
+                layer.msg("不能为空");
+                return;
+            }
+            layer.load();
+            axios({
+                method:'post',
+                url:'/videos/del',
+                params: { id: video.id },
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}
+            }).then(function (response) {
+                layer.msg(response.data);
+                that.table.ajax.reload( null, false );
+                that.resetServer();
+                layer.closeAll();
+            })
+            .catch(function (error) {
+                console.log(error);
+                layer.closeAll();
+            });
+        }, function(){
+          
+        });
+    },
       viewimg:function(imgsrc){
         var that = this;
         layer.ready(function(){
@@ -296,12 +457,6 @@ const App = {
                 });
           layer.close(index);
         })
-      },
-      edit:function(video){
-          console.log(video);
-      },
-      del:function(video){
-          console.log(video);
       },
     }
 };

@@ -19,6 +19,18 @@ pub struct Video {
 }
 
 
+#[derive(Insertable, AsChangeset, Serialize, Deserialize)]
+#[table_name = "videos"]
+pub struct VideoDTO {
+    pub name: String,
+    pub title: String,
+    pub cid: String,
+    pub size: Option<i32>,
+    pub img: Option<String>,
+}
+
+
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct VideosResult {
     pub data: Vec<Video>,
@@ -60,6 +72,40 @@ impl Video {
             recordsFiltered:total,
         };
         Ok(serde_json::to_string(&result).unwrap())
+    }
+
+
+    pub fn insert(video: VideoDTO,conn: &Connection) -> QueryResult<usize> {
+        let now = Utc::now().naive_utc();
+        diesel::insert_into(videos)
+            .values((
+                name.eq(&video.name),
+                title.eq(&video.title),
+                cid.eq(&video.cid),
+                size.eq(video.size),
+                img.eq(video.img),
+                created_at.eq(now),
+            ))
+            .execute(conn)
+    }
+
+    pub fn edit (i: i32, video: VideoDTO,conn: &Connection) -> QueryResult<usize> {
+        let now = Utc::now().naive_utc();
+        diesel::update(videos.find(i))
+            .set((
+                name.eq(&video.name),
+                title.eq(&video.title),
+                cid.eq(&video.cid),
+                size.eq(video.size),
+                img.eq(video.img),
+                created_at.eq(now),
+            ))
+            .execute(conn)
+    }
+
+    pub fn delete(vid: i32, conn: &Connection) -> QueryResult<usize> {
+        diesel::delete(videos.filter(id.eq(vid)))
+            .execute(conn)
     }
 
     // pub fn find_by_id(i: i32, conn: &Connection) -> QueryResult<Video> {

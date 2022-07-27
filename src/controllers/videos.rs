@@ -13,7 +13,7 @@ use crate::{
     db::Pool,
     models::{
       response::ResponseBody,
-      videos::{Video},
+      videos::{Video,VideoDTO},
       settings::{Setting},
     },
     constants,
@@ -42,6 +42,64 @@ pub async fn videos_all(Query(params): Query<HashMap<String, String>>,Extension(
         }
         Err(_) =>{
             Ok(String::from("not ok"))
+        } 
+    }
+}
+
+pub async fn add(Json(video): Json<VideoDTO>,Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
+    match Video::insert(video,&pool.get().unwrap()) {
+        Ok(result) => {
+            Ok(String::from("添加成功"))
+        }
+        Err(_) =>{
+            Ok(String::from("添加失败请稍后再试"))
+        } 
+    }
+}
+
+
+pub async fn edit(Query(params): Query<HashMap<String, String>>,Json(video): Json<VideoDTO>,Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
+    let video_id = match params.get("id") {
+        Some(id) => id.parse::<i32>().unwrap(),
+        None => {
+            0
+        }
+    }; 
+
+    if video_id == 0 {
+        return Ok(String::from("ID不能为空"))
+    }
+    match Video::edit(video_id,video,&pool.get().unwrap()) {
+        Ok(result) => {
+            Ok(String::from("修改成功"))
+        }
+        Err(_) =>{
+            Ok(String::from("修改失败请稍后再试"))
+        } 
+    }
+}
+
+
+
+
+pub async fn del(Query(params): Query<HashMap<String, String>>,Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
+    let video_id = match params.get("id") {
+        Some(id) => id.parse::<i32>().unwrap(),
+        None => {
+            0
+        }
+    }; 
+
+    if video_id == 0 {
+        return Ok(String::from("ID不能为空"))
+    }
+
+    match Video::delete(video_id,&pool.get().unwrap()) {
+        Ok(result) => {
+            Ok(String::from("删除成功"))
+        }
+        Err(_) =>{
+            Ok(String::from("删除失败请稍后再试"))
         } 
     }
 }
