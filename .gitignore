@@ -13,3 +13,4 @@ Cargo.lock
 ._*
 axum-web.db
 music-data
+.env

@@ -1,8 +1,25 @@
 table! {
+    gateways (id) {
+        id -> Integer,
+        name -> Text,
+        url -> Text,
+    }
+}
+
+table! {
     login_history (id) {
         id -> Integer,
         user_id -> Integer,
         login_timestamp -> Timestamp,
+    }
+}
+
+table! {
+    settings (id) {
+        id -> Integer,
+        key -> Text,
+        value -> Text,
+        desc -> Nullable<Text>,
     }
 }
 
@@ -12,19 +29,6 @@ table! {
         name -> Text,
         artist -> Text,
         filename -> Nullable<Text>,
-    }
-}
-
-
-table! {
-    videos (id) {
-        id -> Integer,
-        name -> Text,
-        title -> Text,
-        cid -> Text,
-        size -> Nullable<Integer>,
-        img -> Nullable<Text>,
-        created_at -> Timestamp,
     }
 }
 
@@ -38,11 +42,25 @@ table! {
     }
 }
 
+table! {
+    videos (id) {
+        id -> Integer,
+        name -> Text,
+        title -> Text,
+        cid -> Text,
+        size -> Nullable<Integer>,
+        img -> Nullable<Text>,
+        created_at -> Timestamp,
+    }
+}
+
 joinable!(login_history -> users (user_id));
 
 allow_tables_to_appear_in_same_query!(
+    gateways,
     login_history,
+    settings,
     songs,
-    videos,
     users,
+    videos,
 );
