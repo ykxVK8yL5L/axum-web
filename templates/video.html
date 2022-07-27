@@ -10,6 +10,9 @@
 <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
 <link href="/assets/DataTables/datatables.min.css" rel="stylesheet">
 <link href="/assets/DataTables/Responsive-2.2.9/css/responsive.bootstrap5.min.css" rel="stylesheet">
+<style>
+  .row{padding: 5px;}
+</style>
 </head>
 <body>
 <div id="app" class="container">
@@ -346,6 +349,13 @@ const App = {
         });
         layer.full(index);
       },
+      resetServer:function(){
+        this.sid = 0;
+        this.name = "",
+        this.title = "";
+        this.cid = "";
+        this.img = "";
+      },
       saveServer:function(){
         var that = this;
         if(!that.cid || 0 === that.cid.trim().length){
@@ -441,6 +451,27 @@ const App = {
         }, function(){
           
         });
+    },
+      syncUpload:function(){
+        var that = this;
+        layer.load();
+        axios({
+                method:'get',
+                url:'/videos/sync',
+                timeout: 10000,
+                data:{
+                },
+            }).then(function (response) {
+                layer.alert(response.data);
+                that.table.ajax.reload( null, false );
+                that.resetServer();
+                layer.closeAll('loading');
+            })
+            .catch(function (error) {
+                layer.alert("同步失败请稍后重试");
+                console.log(error);
+                layer.closeAll();
+            });
     },
       viewimg:function(imgsrc){
         var that = this;

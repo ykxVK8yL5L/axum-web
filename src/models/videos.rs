@@ -7,6 +7,16 @@ use serde::{ Deserialize, Serialize };
 use chrono::{NaiveDateTime, Utc};
 use std::collections::HashMap;
 
+
+use mongodb::{
+    bson::doc,
+    bson::Document,
+    sync::Client,
+    options::InsertManyOptions,
+};
+
+use crate::models::settings::{Setting};
+
 #[derive(Queryable,Debug,Serialize, Deserialize,)]
 pub struct Video {
     pub id: i32,
@@ -36,6 +46,15 @@ pub struct VideosResult {
     pub data: Vec<Video>,
     pub recordsTotal: i64,
     pub recordsFiltered:i64,
+}
+
+
+#[derive(Debug, Serialize, Deserialize)]
+struct Remote {
+    name: String,
+    cid: String,
+    size: String,
+    issync:i32
 }
 
 
@@ -107,6 +126,49 @@ impl Video {
         diesel::delete(videos.filter(id.eq(vid)))
             .execute(conn)
     }
+
+    pub fn sync(conn: &Connection) -> Result<String, mongodb::error::Error> {
+        let mongodb_url = match Setting::find_value_by_key(&"MONGO_DB_CONNECT".to_string(), conn) {
+            Ok(gateway) => gateway,
+            Err(err) => {
+                info!("{:?}", err);
+                "".to_string()
+            }
+        };
+        if  mongodb_url.is_empty(){
+            return Ok("MongoDB url is empty".to_string());
+        }
+
+        let client = Client::with_uri_str(mongodb_url).unwrap();
+        let db = client.database("mydb");
+        let collection = db.collection::<Remote>("web3");
+        let cursor = collection.find(doc! { "issync": 0 }, None)?;
+
+        for result in cursor {
+            info!("title: {}", result?.name);
+        }
+
+        Ok("同步成功".to_string())
+
+    }
+
+    pub fn add_task(download_url:&String,conn: &Connection) -> QueryResult<usize> {
+        let mongodb_url = match Setting::find_value_by_key(&"MONGO_DB_CONNECT".to_string(), conn) {
+            Ok(gateway) => gateway,
+            Err(err) => {
+                info!("{:?}", err);
+                "".to_string()
+            }
+        };
+        if  mongodb_url.is_empty(){
+            return Ok(0);
+        }
+        Ok(0)
+    }
+
+
+
+
 
     // pub fn find_by_id(i: i32, conn: &Connection) -> QueryResult<Video> {
     //     videos.find(i).get_result::<Video>(conn)

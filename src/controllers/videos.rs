@@ -103,3 +103,40 @@ pub async fn del(Query(params): Query<HashMap<String, String>>,Extension(pool): 
         } 
     }
 }
+
+
+
+pub async fn sync(Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
+    match Video::sync(&pool.get().unwrap()) {
+        Ok(result) => {
+            Ok(String::from("同步成功"))
+        }
+        Err(e) =>{
+            Ok(String::from(format!("同步失败:{}",e)))
+            //Ok(String::from("同步失败请稍后再试"))
+        } 
+    }  
+
+}
+
+pub async fn add_task(Query(params): Query<HashMap<String, String>>,Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
+    let download_url = match params.get("download_url") {
+        Some(url) => url,
+        None => {
+            return Ok(String::from("下载地址不能为空"))
+        }
+    };
+
+    if (download_url.trim().len() == 0) {
+        return Ok(String::from("下载地址不能为空"))
+    }
+        
+    match Video::add_task(&download_url,&pool.get().unwrap()) {
+        Ok(result) => {
+            Ok(String::from("添加任务成功"))
+        }
+        Err(_) =>{
+            Ok(String::from("添加任务失败请稍后再试"))
+        } 
+    }
+}
