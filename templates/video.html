@@ -67,7 +67,7 @@
                       <option :value="gw.url" v-for="gw in gatewaylist" >${gw.name}</option>                                    
                   </select>
                   <div class="input-group-append">
-                      <span class="input-group-text" id="basic-addon1" @click="savegateway">默认</span>
+                      <span class="input-group-text" id="basic-addon1" @click="saveGateway">默认</span>
                   </div>
           
               </div>
@@ -112,7 +112,7 @@ const App = {
     data() {
         return {
             table: null,
-            gateway: "",
+            gateway: '{{gateway}}',
             gatewayurl:"",
             gatewayname:"",
             gatewaylist: [],
@@ -205,6 +205,26 @@ const App = {
             content: $('#gatewaydiv')
         });
         layer.full(index);
+      },
+      saveGateway:function(){
+        var that = this;
+        axios({
+                method:'post',
+                url:'/gateways/save',
+                params: { url: that.gateway },
+            }).then(function (response) {
+                layer.alert(response.data);
+                that.table.ajax.reload( null, false );
+                that.gateway = "";
+                that.gatewayurl = "";
+                that.gatewayname = "";
+                that.getGateways();
+                layer.closeAll('loading');
+                layer.closeAll('page');
+            }).catch(function (error) {
+                    console.log(error);
+                    layer.closeAll();
+                });
       },
       delGateway:function(){
         var that = this;

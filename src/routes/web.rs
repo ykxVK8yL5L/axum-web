@@ -1,10 +1,11 @@
 use axum::{
     Router,
-    routing::{get},
+    routing::{get,post},
     response::{IntoResponse},
 };
 use crate::controllers::{
-    index::{root,greet}
+    index::{root,greet},
+    gateways,
 };
 use crate::{config::env::ServerConfig};
 // use std::fs;
@@ -26,7 +27,11 @@ pub async fn home() -> impl IntoResponse {
 pub fn create_web_router(config:&ServerConfig)->Router{
     let web_router = Router::new().route("/greet/:name", get(greet))
     .route("/", get(home))
-    .route("/hello", get(root));
+    .route("/hello", get(root))
+    .route("/gateways/all", get(gateways::all))
+    .route("/gateways/add", post(gateways::add))
+    .route("/gateways/save", post(gateways::save))
+    .route("/gateways/del", post(gateways::del));
     web_router
 }
 

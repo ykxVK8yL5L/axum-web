@@ -8,20 +8,28 @@ use axum::{
     response::{IntoResponse},
 };
 use tracing::info;
-use crate::utils::template::{HtmlTemplate,HelloTemplate};
+use crate::utils::template::{HtmlTemplate,VideoTemplate};
 use crate::{
     db::Pool,
     models::{
       response::ResponseBody,
       videos::{Video},
+      settings::{Setting},
     },
     constants,
 };
 
 
-pub async fn videos_home() -> impl IntoResponse {
+pub async fn videos_home(Extension(pool): Extension<Pool>,) -> impl IntoResponse {
     let name = "IPFS文件管理".to_string();
-    let hellotemplate =HelloTemplate { name };
+    let gateway = match Setting::find_value_by_key(&"gateway".to_string(), &pool.get().unwrap()) {
+        Ok(gateway) => gateway,
+        Err(err) => {
+            info!("{:?}", err);
+            "".to_string()
+        }
+    };
+    let hellotemplate =VideoTemplate { name,gateway };
     HtmlTemplate(hellotemplate)
 }
 

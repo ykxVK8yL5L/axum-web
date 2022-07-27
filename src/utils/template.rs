@@ -30,6 +30,15 @@ pub struct MusicTemplate {
 
 
 #[derive(Template)]
+#[template(path = "video.html")]
+pub struct VideoTemplate {
+    pub name: String,
+    pub gateway: String,
+}
+
+
+
+#[derive(Template)]
 #[template(path = "error.html")]
 pub struct ErrorTemplate {
     pub label: String,
