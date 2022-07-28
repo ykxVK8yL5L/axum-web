@@ -34,7 +34,7 @@ jobs:
         uses: messense/maturin-action@v1
         with:
           target: ${{ matrix.platform.target }}
-          args: --release --out dist --no-sdist --strip
+          args: --release --out dist --strip
       - name: Upload wheels
         uses: actions/upload-artifact@v2
         with:
