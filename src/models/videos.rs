@@ -1,7 +1,6 @@
 use crate::{schema::videos::{self,dsl::*}};
 use diesel::prelude::*;
 use diesel::dsl::count;
-use jwt::Header;
 use tracing::info;
 use crate::db::Connection;
 use serde::{ Deserialize, Serialize };
