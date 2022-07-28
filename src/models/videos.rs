@@ -1,13 +1,14 @@
 use crate::{schema::videos::{self,dsl::*}};
 use diesel::prelude::*;
 use diesel::dsl::count;
+use jwt::Header;
 use tracing::info;
 use crate::db::Connection;
 use serde::{ Deserialize, Serialize };
 use chrono::{NaiveDateTime, Utc};
 use std::{collections::HashMap};
-
-
+use reqwest::header;
+use tokio::task::block_in_place;
 use mongodb::{
     bson::doc,
     sync::Client,
@@ -173,7 +174,7 @@ impl Video {
 
     }
 
-    pub fn add_task(download_url:&String,isnow:i32,conn: &Connection) -> Result<usize,mongodb::error::Error> {
+    pub fn add_task(download_url:&String,isnow:i32,conn: &Connection) -> Result<usize,Box<dyn std::error::Error>> {
         let mongodb_url = match Setting::find_value_by_key(&"MONGO_DB_CONNECT".to_string(), conn) {
             Ok(gateway) => gateway,
             Err(err) => {
@@ -205,6 +206,62 @@ impl Video {
 
         if task_dto.len() > 0 {
             let _ = collection.insert_many(task_dto, None)?;
+        }
+
+
+        if isnow == 1 {
+            let github_actions_url = match Setting::find_value_by_key(&"GITHUB_ACTIONS_URL".to_string(), conn) {
+                Ok(gateway) => gateway,
+                Err(err) => {
+                    info!("{:?}", err);
+                    "".to_string()
+                }
+            };
+            if  github_actions_url.is_empty(){
+                return Ok(0);
+            }
+
+            let github_token = match Setting::find_value_by_key(&"GITHUB_TOKEN".to_string(), conn) {
+                Ok(gateway) => gateway,
+                Err(err) => {
+                    info!("{:?}", err);
+                    "".to_string()
+                }
+            };
+
+            if github_token.is_empty(){
+                return Ok(0);
+            }
+
+            let result = block_in_place(move || {
+                let mut headers = header::HeaderMap::new();
+                headers.insert(header::ACCEPT, "application/vnd.github.v3+json".parse().unwrap());
+                headers.insert(header::AUTHORIZATION, format!("token {}",&github_token).parse().unwrap());
+                headers.insert(header::CONTENT_TYPE, "application/x-www-form-urlencoded".parse().unwrap());
+                headers.insert(header::USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36".parse().unwrap());
+                let params = [("ref", "main")];
+                let client = reqwest::blocking::Client::new();
+                let res = client.post(github_actions_url)
+                    .headers(headers)
+                    .body("{\"ref\":\"main\"}")
+                    .send();
+
+                //info!("res: {:?}", &res);
+                match res { 
+                    Ok(res) => {
+                        let status = res.status();
+                        if status.is_success() {
+                            Ok(1)
+                        } else {
+                            Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, "github actions error")))
+                        }
+                    }
+                    Err(err) => {
+                        Err(Box::new(std::io::Error::new(std::io::ErrorKind::Other, "unknown error")))
+                    }
+                }
+            });
+
         }
             
         Ok(task_count)
