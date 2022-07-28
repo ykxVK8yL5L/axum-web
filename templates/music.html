@@ -128,6 +128,7 @@
         },
         search:function(){
           var that = this;
+          layer.load();
           that.page=1;
           that.list=[];
           that.player.list.clear();
@@ -156,14 +157,17 @@
               });
               that.player.list.add(songs);
             }
+            layer.closeAll('loading');
             //console.log(response.data);
           })
           .catch(function (error) {
+            layer.closeAll('loading');
             console.log(error);
           });
         },
         nextpage:function(){
           var that = this;
+          layer.load();
           that.page+=1;
           var query="text="+that.kw+"&page="+that.page+"&type="+that.type;
           var encodequery = encode(query);
@@ -189,8 +193,10 @@
               });
               that.player.list.add(songs);
             }
+            layer.closeAll('loading');
           })
           .catch(function (error) {
+            layer.closeAll('loading');
             console.log(error);
           });
         },
@@ -215,6 +221,7 @@
         },
         downloadLocal:function(){
           var that = this;
+          layer.load();
           var index = this.player.list.index;
           var songlist = this.player.list;
           var song = this.list[index];
@@ -230,9 +237,11 @@
           axios(config)
             .then(function (response) {
               layer.msg(response.data.data);
+              layer.closeAll('loading');
               console.log(response.data);
             })
             .catch(function (error) {
+              layer.closeAll('loading');
               console.log(error);
             });
         },
