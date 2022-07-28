@@ -10,119 +10,115 @@
 <link href="/assets/css/bootstrap.min.css" rel="stylesheet">
 <link href="/assets/DataTables/datatables.min.css" rel="stylesheet">
 <link href="/assets/DataTables/Responsive-2.2.9/css/responsive.bootstrap5.min.css" rel="stylesheet">
+
 <style>
   .row{padding: 5px;}
 </style>
 </head>
 <body>
 <div id="app" class="container">
-   <div class="row">
-
-    <div id="server" style="display:none;">
-      <div class="card">
-          <div class="card-body">
-          <form class="form" role="form">
-              <input type="hidden" class="form-control" id="sid" v-model="sid"/>
-                  <div class="form-group row">
-                      <label for="name" class="col-sm-2 control-label">文件名称</label>
-                      <div class="col-sm-10">
-                          <input type="text" class="form-control" id="name" v-model="name"
-                              placeholder="文件名称">
-                      </div>
-                  </div>
-                  <div class="form-group row">
-                    <label for="title" class="col-sm-2 control-label">标题</label>
-                    <div class="col-sm-10">
-                        <input type="text" class="form-control" id="title" v-model="title"
-                            placeholder="名称">
+    <div class="row">
+        <div id="server" style="display:none;">
+        <div class="card">
+            <div class="card-body">
+            <form class="form" role="form">
+                <input type="hidden" class="form-control" id="sid" v-model="sid"/>
+                    <div class="form-group row">
+                        <label for="name" class="col-sm-2 control-label">文件名称</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="name" v-model="name"
+                                placeholder="文件名称">
+                        </div>
                     </div>
-                  </div>
+                    <div class="form-group row">
+                        <label for="title" class="col-sm-2 control-label">标题</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="title" v-model="title"
+                                placeholder="名称">
+                        </div>
+                    </div>
 
-                  <div class="form-group row">
-                      <label for="cid" class="col-sm-2 control-label">CID</label>
-                      <div class="col-sm-10">
-                          <input type="text" class="form-control" id="cid" v-model="cid"
-                              placeholder="CID">
-                      </div>
-                  </div>
-                  <div class="form-group row">
-                      <label for="img" class="col-sm-2 control-label">图片地址</label>
-                      <div class="col-sm-10">
-                          <input type="text" class="form-control" id="img" v-model="img"
-                              placeholder="图片地址">
-                      </div>
-                  </div>
-                  <div class="form-group row">
-                      <div class="col-sm-12">
-                          <button type="button" class="btn btn-primary" @click="saveServer">保存</button>
-                      </div>
-                  </div>
-              </form>
-          </div>
-      </div>
-    </div>
+                    <div class="form-group row">
+                        <label for="cid" class="col-sm-2 control-label">CID</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="cid" v-model="cid"
+                                placeholder="CID">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="img" class="col-sm-2 control-label">图片地址</label>
+                        <div class="col-sm-10">
+                            <input type="text" class="form-control" id="img" v-model="img"
+                                placeholder="图片地址">
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <button type="button" class="btn btn-primary" @click="saveServer">保存</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        </div>
 
+        <div id="gatewaydiv" style="display:none;">
+        <div class="card">
+            <div class="card-body">
+            <form class="form" role="form">
+                    <div class="form-group row">
+                        <label for="gatewayurl" class="col-sm-2 control-label">网关地址</label>
+                        <div class="col-sm-10">
+                                <input id="gatewayurl" v-model="gatewayurl" class="form-control" placeholder="网关地址"/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                    <label for="gatewayname" class="col-sm-2 control-label">网关名称</label>
+                        <div class="col-sm-10">
+                                <input id="gatewayurl" v-model="gatewayname" class="form-control" placeholder="网关名称"/>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <button type="button" class="btn btn-primary" @click="saveAddGateway">保存</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        </div>
 
-    <div id="gatewaydiv" style="display:none;">
-      <div class="card">
-          <div class="card-body">
-          <form class="form" role="form">
-                  <div class="form-group row">
-                      <label for="gatewayurl" class="col-sm-2 control-label">网关地址</label>
-                      <div class="col-sm-10">
-                              <input id="gatewayurl" v-model="gatewayurl" class="form-control" placeholder="网关地址"/>
-                      </div>
-                  </div>
-                  <div class="form-group row">
-                  <label for="gatewayname" class="col-sm-2 control-label">网关名称</label>
-                      <div class="col-sm-10">
-                              <input id="gatewayurl" v-model="gatewayname" class="form-control" placeholder="网关名称"/>
-                      </div>
-                  </div>
-                  <div class="form-group row">
-                      <div class="col-sm-12">
-                          <button type="button" class="btn btn-primary" @click="saveAddGateway">保存</button>
-                      </div>
-                  </div>
-              </form>
-          </div>
-      </div>
-    </div>
-
-    <div id="task" style="display:none;">
-      <div class="card">
-          <div class="card-body">
-          <form class="form" role="form">
-                  <div class="form-group row">
-                      <label for="taskurl" class="col-sm-2 control-label">任务地址</label>
-                      <div class="col-sm-10">
-                              <textarea id="taskurl" v-model="taskurl" class="form-control" placeholder="任务地址"></textarea>
-                      </div>
-                  </div>
-                  <div class="form-group row">
-                      <label for="taskurl" class="col-sm-2 control-label">是否立即下载</label>
-                      <div class="col-sm-10">
-                          <label class="radio-inline">
-                              <input type="radio" id="nonow" value="0" v-model="isnow" > 否
-                          </label>
-                          <label class="radio-inline">
-                              <input type="radio" id="yenow" value="1" v-model="isnow" > 是
-                          </label>
-                      </div>
-                  </div>
-                  <div class="form-group row">
-                      <div class="col-sm-12">
-                          <button type="button" class="btn btn-primary" @click="saveTask">保存</button>
-                      </div>
-                  </div>
-              </form>
-          </div>
-      </div>
-    </div>
+        <div id="task" style="display:none;">
+        <div class="card">
+            <div class="card-body">
+            <form class="form" role="form">
+                    <div class="form-group row">
+                        <label for="taskurl" class="col-sm-2 control-label">任务地址</label>
+                        <div class="col-sm-10">
+                                <textarea id="taskurl" v-model="taskurl" class="form-control" placeholder="任务地址"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="taskurl" class="col-sm-2 control-label">是否立即下载</label>
+                        <div class="col-sm-10">
+                            <label class="radio-inline">
+                                <input type="radio" id="nonow" value="0" v-model="isnow" > 否
+                            </label>
+                            <label class="radio-inline">
+                                <input type="radio" id="yenow" value="1" v-model="isnow" > 是
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <button type="button" class="btn btn-primary" @click="saveTask">保存</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        </div>
   
-
-
-
         <div class="col-12">
             <div class="card">
               <div class="card-header">
@@ -173,7 +169,6 @@
         </div>
     </div>
 </div>
-</div>
 <script src="/assets/js/jquery-3.6.0.min.js"></script>
 <script src="/assets/js/popper.min.js"></script>
 <script src="/assets/js/bootstrap.min.js"></script>
@@ -183,6 +178,7 @@
 <script src="/assets/js/vue-3.js"></script>
 <script src="/assets/js/axios.min.js"></script>
 <script src="/assets/js/moment.js"></script>
+<script src="/assets/js/clipboard.min.js"></script>
 <script>
 const App = {
     compilerOptions: {
@@ -578,6 +574,7 @@ const App = {
           layer.close(index);
         })
       },
+      
     }
 };
 const app = Vue.createApp(App).mount('#app');

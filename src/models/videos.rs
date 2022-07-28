@@ -152,14 +152,14 @@ impl Video {
         let mut sync_count = 0;
 
         for result in cursor {
-            //info!("title: {}", result?.name);
+            //info!("title: {}", &result?.size);
            match result {
                 Ok(remote) => {
                     let video = VideoDTO {
                         name: String::from(&remote.name),
                         title: String::from(&remote.name),
                         cid: remote.cid,
-                        size: Some(remote.size),
+                        size: Some(String::from(&remote.size)),
                         img: Some("".to_string()),
                     };
                     let _ = Video::insert(video, conn);
