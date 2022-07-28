@@ -10,6 +10,7 @@ pub struct Setting {
     pub key: String,
     pub value: String,
     pub desc: Option<String>,
+    pub hidden: bool,
 }
 
 
@@ -20,6 +21,7 @@ pub struct SettingDTO {
     pub key: String,
     pub value: String,
     pub desc: Option<String>,
+    pub hidden: bool,
 }
 
 

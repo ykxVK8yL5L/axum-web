@@ -20,6 +20,7 @@ table! {
         key -> Text,
         value -> Text,
         desc -> Nullable<Text>,
+        hidden-> Bool,
     }
 }
 
