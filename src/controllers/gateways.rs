@@ -1,13 +1,9 @@
-use std::str;
 use std::collections::HashMap;
 use axum::{
-    body::Body,
     Json,
     extract::{Query,Extension},
-    http::{Request, StatusCode},
-    response::{IntoResponse},
+    http::{StatusCode},
 };
-use tracing::info;
 use crate::{
     db::Pool,
     models::{
@@ -30,8 +26,8 @@ pub async fn all(Extension(pool): Extension<Pool>,) -> Result<String, (StatusCod
 
 pub async fn add(Json(gateway_dto): Json<GatewayDTO>,Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
     match Gateway::insert(gateway_dto,&pool.get().unwrap()) {
-        Ok(result) => {
-            Ok(String::from("添加成功"))
+        Ok(_) => {
+            Ok(String::from("成功添加"))
         }
         Err(_) =>{
             Ok(String::from("添加失败请稍后再试"))
@@ -40,7 +36,6 @@ pub async fn add(Json(gateway_dto): Json<GatewayDTO>,Extension(pool): Extension<
 }
 
 pub async fn del(Query(params): Query<HashMap<String, String>>,Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
-    //info!("{}", params.get("url").unwrap());
     let gateway_url = match params.get("url") {
         Some(url) => url,
         None => {
@@ -48,7 +43,7 @@ pub async fn del(Query(params): Query<HashMap<String, String>>,Extension(pool): 
         }
     };
     match Gateway::delete(gateway_url,&pool.get().unwrap()) {
-        Ok(result) => {
+        Ok(_) => {
             Ok(String::from("删除成功"))
         }
         Err(_) =>{
@@ -66,7 +61,7 @@ pub async fn save(Query(params): Query<HashMap<String, String>>,Extension(pool):
     };
     let key_name = "gateway".to_string();
     match Setting::update_value_by_key(&key_name,&gateway_url,&pool.get().unwrap()) {
-        Ok(result) => {
+        Ok(_) => {
             Ok(String::from("保存成功"))
         }
         Err(_) =>{

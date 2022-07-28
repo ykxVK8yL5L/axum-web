@@ -3,18 +3,15 @@ use std::path::Path;
 use download_rs::async_download::Download;
 use crate::utils::{template::{HtmlTemplate,MusicTemplate}};
 use axum::{
-    body::Body,
     Json,
     extract::{Query,Extension},
-    http::{Request, StatusCode},
+    http::{StatusCode},
     response::{IntoResponse},
 };
 
 use crate::{
-    db::Pool,
     models::{
       response::ResponseBody,
-      songs::{Song,SongDTO},
     },
     constants,
 };
@@ -42,7 +39,7 @@ pub struct SongRequest {
     pub lrc: String,
 }
 
-pub async fn music_home(Extension(pool): Extension<Pool>,) -> impl IntoResponse {
+pub async fn music_home() -> impl IntoResponse {
     let name = "音乐下载".to_string();
     let music_template = MusicTemplate { name };
     HtmlTemplate(music_template)
@@ -74,17 +71,17 @@ pub async fn music_lrc_query(mlqr: Query<MusicLrcQueryRequest>) -> Result<String
         .expect("send");
     Ok(body)      
 }
-pub async fn music_download(Json(song): Json<SongRequest>,Extension(save_dir): Extension<String>,Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
+pub async fn music_download(Json(song): Json<SongRequest>,Extension(save_dir): Extension<String>) -> Result<String, (StatusCode, String)> {
     let filename = format!("{}-{}",song.name,song.artist);
     let mp3_path_name = format!("{}/mp3/{}.mp3",save_dir,filename.clone());
     let cover_path_name = format!("{}/cover/{}.png",save_dir,filename.clone());
     let lrc_path_name = format!("{}/lrc/{}.lrc",save_dir,filename.clone());
 
-    let songDto = SongDTO{
-        name: song.name,
-        artist: song.artist,
-        filename: Some(filename.clone()),
-    };
+    // let songDto = SongDTO{
+    //     name: song.name,
+    //     artist: song.artist,
+    //     filename: Some(filename.clone()),
+    // };
 
     match Path::new(&mp3_path_name).exists() {
         true => { 

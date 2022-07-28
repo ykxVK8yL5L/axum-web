@@ -1,11 +1,8 @@
 use crate::{schema::settings::{self,dsl::*}};
 use diesel::prelude::*;
-use diesel::dsl::count;
-use tracing::info;
 use crate::db::Connection;
 use serde::{ Deserialize, Serialize };
-use chrono::{NaiveDateTime, Utc};
-use std::collections::HashMap;
+
 
 #[derive(Queryable,Debug,Serialize, Deserialize,)]
 pub struct Setting {
@@ -27,6 +24,7 @@ pub struct SettingDTO {
 
 
 impl Setting {
+    #[allow(dead_code)]
     pub fn get_all(conn: &Connection) -> QueryResult<Vec<Setting>> {
         settings.order(id.asc()).load::<Setting>(conn)
     }

@@ -22,31 +22,32 @@ pub struct SongDTO {
 
 
 impl Song {
+    #[allow(dead_code)]
     pub fn get_all(conn: &Connection) -> QueryResult<Vec<Song>> {
         songs.order(id.asc()).load::<Song>(conn)
     }
 
+    #[allow(dead_code)]
     pub fn find_by_id(i: i32, conn: &Connection) -> QueryResult<Song> {
         songs.find(i).get_result::<Song>(conn)
     }
 
-
+    #[allow(dead_code)]
     pub fn insert(new_song: SongDTO, conn: &Connection) -> QueryResult<usize> {
         diesel::insert_into(songs)
             .values(&new_song)
             .execute(conn)
     }
-
+    #[allow(dead_code)]
     pub fn update(i: i32, updated_song: SongDTO, conn: &Connection) -> QueryResult<usize> {
         diesel::update(songs.find(i))
             .set(&updated_song)
             .execute(conn)
     }
-
+    #[allow(dead_code)]
     pub fn delete(i: i32, conn: &Connection) -> QueryResult<usize> {
         diesel::delete(songs.find(i)).execute(conn)
     }
-
 
     // pub fn find_by_id(i: i32, conn: &Connection) -> QueryResult<Option<Video>> {
     //     let mut video = videos.find(i).load::<Video>(conn)?;

@@ -5,14 +5,12 @@ use tracing::info;
 use crate::db::Connection;
 use serde::{ Deserialize, Serialize };
 use chrono::{NaiveDateTime, Utc};
-use std::{collections::HashMap, sync::Arc};
+use std::{collections::HashMap};
 
 
 use mongodb::{
     bson::doc,
-    bson::Document,
     sync::Client,
-    options::InsertManyOptions,
 };
 
 use crate::models::settings::{Setting};

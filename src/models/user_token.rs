@@ -3,7 +3,7 @@ use chrono::Utc;
 use serde::{ Deserialize, Serialize };
 
 use hmac::{Hmac, NewMac};
-use jwt::{Header, SignWithKey, Token, VerifyWithKey};
+use jwt::{Header, SignWithKey, Token};
 use sha2::Sha256;
 
 

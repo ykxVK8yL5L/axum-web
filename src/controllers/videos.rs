@@ -1,12 +1,10 @@
-use std::str;
 use std::fs::File;
 use std::io::prelude::*;
 use std::collections::HashMap;
 use axum::{
-    body::Body,
     Json,
     extract::{Query,Extension},
-    http::{Request, StatusCode},
+    http::{StatusCode},
     response::{IntoResponse},
 };
 use tracing::info;
@@ -14,11 +12,9 @@ use crate::utils::template::{HtmlTemplate,VideoTemplate};
 use crate::{
     db::Pool,
     models::{
-      response::ResponseBody,
       videos::{Video,VideoDTO},
       settings::{Setting},
     },
-    constants,
 };
 
 
@@ -50,7 +46,7 @@ pub async fn videos_all(Query(params): Query<HashMap<String, String>>,Extension(
 
 pub async fn add(Json(video): Json<VideoDTO>,Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
     match Video::insert(video,&pool.get().unwrap()) {
-        Ok(result) => {
+        Ok(_) => {
             Ok(String::from("添加成功"))
         }
         Err(_) =>{
@@ -72,7 +68,7 @@ pub async fn edit(Query(params): Query<HashMap<String, String>>,Json(video): Jso
         return Ok(String::from("ID不能为空"))
     }
     match Video::edit(video_id,video,&pool.get().unwrap()) {
-        Ok(result) => {
+        Ok(_) => {
             Ok(String::from("修改成功"))
         }
         Err(_) =>{
@@ -97,7 +93,7 @@ pub async fn del(Query(params): Query<HashMap<String, String>>,Extension(pool): 
     }
 
     match Video::delete(video_id,&pool.get().unwrap()) {
-        Ok(result) => {
+        Ok(_) => {
             Ok(String::from("删除成功"))
         }
         Err(_) =>{
@@ -129,7 +125,7 @@ pub async fn add_task(Query(params): Query<HashMap<String, String>>,Extension(po
         }
     };
 
-    if (download_url.trim().len() == 0) {
+    if download_url.trim().len() == 0 {
         return Ok(String::from("下载地址不能为空"))
     }
 
