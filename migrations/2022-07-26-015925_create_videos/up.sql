@@ -4,7 +4,7 @@ CREATE TABLE videos (
     name VARCHAR NOT NULL,
     title VARCHAR NOT NULL,
     cid VARCHAR NOT NULL,
-    size Integer,
+    size VARCHAR,
     img VARCHAR,
     created_at TIMESTAMP default (datetime('now', 'localtime')) NOT NULL
 );

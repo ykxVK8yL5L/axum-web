@@ -1,4 +1,6 @@
 use std::str;
+use std::fs::File;
+use std::io::prelude::*;
 use std::collections::HashMap;
 use axum::{
     body::Body,
@@ -109,7 +111,7 @@ pub async fn del(Query(params): Query<HashMap<String, String>>,Extension(pool): 
 pub async fn sync(Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
     match Video::sync(&pool.get().unwrap()) {
         Ok(result) => {
-            Ok(String::from("同步成功"))
+            Ok(String::from(result))
         }
         Err(e) =>{
             Ok(String::from(format!("同步失败:{}",e)))
@@ -130,13 +132,59 @@ pub async fn add_task(Query(params): Query<HashMap<String, String>>,Extension(po
     if (download_url.trim().len() == 0) {
         return Ok(String::from("下载地址不能为空"))
     }
+
+    let isnow = match params.get("isnow") {
+        Some(isnow) => isnow.parse::<i32>().unwrap(),
+        None => {
+            0
+        }
+    };
         
-    match Video::add_task(&download_url,&pool.get().unwrap()) {
+    match Video::add_task(&download_url,isnow,&pool.get().unwrap()) {
         Ok(result) => {
-            Ok(String::from("添加任务成功"))
+            Ok(format!("添加{}任务成功",result))
         }
         Err(_) =>{
             Ok(String::from("添加任务失败请稍后再试"))
         } 
     }
+}
+
+pub async fn create_m3u(Extension(save_dir): Extension<String>,Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
+    //info!("{}", save_dir);
+    let m3u_path = format!("{}/{}", save_dir, "videos.m3u");
+    let gateway = match Setting::find_value_by_key(&"gateway".to_string(), &pool.get().unwrap()) {
+        Ok(gateway) => gateway,
+        Err(err) => {
+            info!("{:?}", err);
+            "".to_string()
+        }
+    };
+    let videos = match Video::get_all(&pool.get().unwrap()) {
+        Ok(result) => {
+            result
+        }
+        Err(_) =>{
+            return Ok(String::from("获取视频列表失败"))
+        } 
+    };
+
+    if gateway.trim().len() == 0 {
+        return Ok(String::from("请先设置gateway"))
+    }
+
+    let mut m3u_contents = String::from("#EXTM3U\n");
+    for video in videos {
+        let video_url = format!("{}/{}/{}",gateway,video.cid,video.name);
+        let video_img = match video.img {
+            Some(img) => img,
+            None => "".to_string()
+        };
+        m3u_contents.push_str(&format!("#EXTINF:-1 tvg-logo=\"{}\",{}\n{}\n",video_img,video.title,video_url));
+    }
+
+    let mut file = File::create(m3u_path).unwrap();
+    file.write_all(m3u_contents.as_bytes()).unwrap();
+
+    Ok("生成完成".to_string())
 }

@@ -5,7 +5,7 @@ use tracing::info;
 use crate::db::Connection;
 use serde::{ Deserialize, Serialize };
 use chrono::{NaiveDateTime, Utc};
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 
 use mongodb::{
@@ -23,7 +23,7 @@ pub struct Video {
     pub name: String,
     pub title: String,
     pub cid: String,
-    pub size: Option<i32>,
+    pub size: Option<String>,
     pub img: Option<String>,
     pub created_at: NaiveDateTime,
 }
@@ -35,11 +35,9 @@ pub struct VideoDTO {
     pub name: String,
     pub title: String,
     pub cid: String,
-    pub size: Option<i32>,
+    pub size: Option<String>,
     pub img: Option<String>,
 }
-
-
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct VideosResult {
@@ -59,11 +57,20 @@ struct Remote {
 
 
 
+#[derive(Debug, Serialize, Deserialize)]
+struct Task {
+    url: String,
+    isnow:i32
+}
+
+
+
 
 impl Video {
     pub fn get_all(conn: &Connection) -> QueryResult<Vec<Video>> {
         videos.order(id.asc()).load::<Video>(conn)
     }
+
     pub fn pagination(params:&HashMap<String, String>,conn: &Connection) -> QueryResult<String> {
 
         let start:i64 = params.get("start").unwrap().parse::<i64>().unwrap();
@@ -92,7 +99,6 @@ impl Video {
         };
         Ok(serde_json::to_string(&result).unwrap())
     }
-
 
     pub fn insert(video: VideoDTO,conn: &Connection) -> QueryResult<usize> {
         let now = Utc::now().naive_utc();
@@ -143,16 +149,33 @@ impl Video {
         let db = client.database("mydb");
         let collection = db.collection::<Remote>("web3");
         let cursor = collection.find(doc! { "issync": 0 }, None)?;
+        let mut sync_count = 0;
 
         for result in cursor {
-            info!("title: {}", result?.name);
+            //info!("title: {}", result?.name);
+           match result {
+                Ok(remote) => {
+                    let video = VideoDTO {
+                        name: String::from(&remote.name),
+                        title: String::from(&remote.name),
+                        cid: remote.cid,
+                        size: Some(remote.size),
+                        img: Some("".to_string()),
+                    };
+                    let _ = Video::insert(video, conn);
+                    sync_count += 1;
+                }
+                Err(err) => {
+                    info!("{:?}", err);
+                }
+            }
         }
-
-        Ok("同步成功".to_string())
+        collection.update_many(doc! { "issync": 0 }, doc! { "$set": { "issync": 1 } }, None)?;
+        Ok(format!("同步成功，共同步{}个",sync_count))
 
     }
 
-    pub fn add_task(download_url:&String,conn: &Connection) -> QueryResult<usize> {
+    pub fn add_task(download_url:&String,isnow:i32,conn: &Connection) -> Result<usize,mongodb::error::Error> {
         let mongodb_url = match Setting::find_value_by_key(&"MONGO_DB_CONNECT".to_string(), conn) {
             Ok(gateway) => gateway,
             Err(err) => {
@@ -163,21 +186,31 @@ impl Video {
         if  mongodb_url.is_empty(){
             return Ok(0);
         }
-        Ok(0)
+        
+        let client = Client::with_uri_str(mongodb_url).unwrap();
+        let db = client.database("mydb");
+        let collection = db.collection::<Task>("task");
+        let mut task_count = 0;
+        let mut task_dto =  Vec::new();
+
+        let task_list = download_url.split("\n").collect::<Vec<&str>>();
+        for task in task_list  {
+            if task.trim().is_empty(){
+                continue;
+            }
+            task_dto.push(Task {
+                url: task.to_string(),
+                isnow: isnow,
+            });
+            task_count += 1;
+        }
+
+        if task_dto.len() > 0 {
+            let _ = collection.insert_many(task_dto, None)?;
+        }
+            
+        Ok(task_count)
     }
-
-
-
-
-
-    // pub fn find_by_id(i: i32, conn: &Connection) -> QueryResult<Video> {
-    //     videos.find(i).get_result::<Video>(conn)
-    // }
-
-    // pub fn find_by_id(i: i32, conn: &Connection) -> QueryResult<Option<Video>> {
-    //     let mut video = videos.find(i).load::<Video>(conn)?;
-    //     Ok(video.pop())
-    // }
 
 }
 

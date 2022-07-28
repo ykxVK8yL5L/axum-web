@@ -48,7 +48,7 @@ table! {
         name -> Text,
         title -> Text,
         cid -> Text,
-        size -> Nullable<Integer>,
+        size -> Nullable<Text>,
         img -> Nullable<Text>,
         created_at -> Timestamp,
     }
