@@ -73,7 +73,7 @@ features = ["v4"]
 [dependencies.mongodb]
 version = "2.3.0"
 default-features = false
-features = ["sync"]
+features = ["sync","openssl-tls"]
 
 
 [dependencies.proc-macro2]
