@@ -38,7 +38,7 @@ x86_64的安装代码:
 ```
 wget https://github.com/ykxVK8yL5L/axum-web/releases/download/v0.0.4/axum-web_0.0.4_x86_64.ipk
 wget https://github.com/ykxVK8yL5L/axum-web/releases/download/v0.0.4/luci-app-axum-web_1.0.0_all.ipk
-wget https://github.com/ykxVK8yL5L/axum-web/releases/download/v0.0.4/luci-i18n-axum-web-zh-cn_1.0.0-1_all.ipk
+wget https://github.com/ykxVK8yL5L/axum-web/releases/download/v0.0.2/luci-i18n-axum-web-zh-cn_1.0.0-1_all.ipk
 opkg install axum-web_0.0.4_x86_64.ipk
 opkg install luci-app-axum-web_1.0.0_all.ipk
 opkg install luci-i18n-axum-web-zh-cn_1.0.0-1_all.ipk
