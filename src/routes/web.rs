@@ -6,6 +6,7 @@ use axum::{
 use crate::controllers::{
     index::{root,greet},
     gateways,
+    settings,
 };
 use crate::{config::env::ServerConfig};
 // use std::fs;
@@ -31,7 +32,9 @@ pub fn create_web_router(config:&ServerConfig)->Router{
     .route("/gateways/all", get(gateways::all))
     .route("/gateways/add", post(gateways::add))
     .route("/gateways/save", post(gateways::save))
-    .route("/gateways/del", post(gateways::del));
+    .route("/gateways/del", post(gateways::del))
+    .route("/settings/all", get(settings::all))
+    .route("/settings/save", post(settings::save));
     web_router
 }
 

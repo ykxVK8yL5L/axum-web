@@ -62,6 +62,33 @@
         </div>
         </div>
 
+
+        <div id="setting" style="display: none;">
+            <div class="accordion" id="accordionExample">
+
+                <div class="accordion-item" v-for="(setting,index) in settings">
+                  <h2 class="accordion-header" :id="'heading'+index.toString()">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" :data-bs-target="'#'+setting.key" aria-expanded="true" :aria-controls="setting.key">
+                      ${setting.desc}
+                    </button>
+                  </h2>
+                  <div :id="setting.key" class="accordion-collapse collapse" v-bind:class="{'show': index==0}" :aria-labelledby="'heading'+index.toString()" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                       <div class="input-group">
+                        <textarea class="form-control" aria-label="值" v-model="setting.value" placeholder="值"></textarea>
+                        <div class="input-group-append" style="display:flex">
+                            <span class="input-group-text" id="basic-addon2" @click="saveSetting(setting.key,setting.value)">保存</span>
+                        </div>
+                    </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+        </div>
+
+
+
         <div id="gatewaydiv" style="display:none;">
         <div class="card">
             <div class="card-body">
@@ -134,6 +161,7 @@
                           <li></li><a class="btn btn-outline-primary dropdown-item" @click="createM3u">生成m3u</a></li>
                           <li></li><a class="btn btn-outline-primary dropdown-item" @click="addServer">新增文件记录</a></li>
                           <li></li><a  class="btn btn-outline-primary dropdown-item" @click="addGateway">添加网关</a> </li>
+                          <li></li><a  class="btn btn-outline-primary dropdown-item" @click="setting">设置</a> </li>
                         </ul>
                       </div>
                   </div>
@@ -198,6 +226,7 @@ const App = {
             img:"",
             taskurl:"",
             isnow:0,
+            settings:[],
         };
     },
     mounted : function(){
@@ -272,6 +301,7 @@ const App = {
         });  
         this.$nextTick(function () {
           that.getGateways();
+          that.getSettings();
         });
     },
     methods: {
@@ -509,7 +539,7 @@ const App = {
             content: $('#task')
         });
         layer.full(index);
-    },
+     },
       saveTask:function(){
         var that = this;
         if(!that.taskurl || 0 === that.taskurl.trim().length){
@@ -558,6 +588,37 @@ const App = {
                     layer.closeAll();
             });
     },
+      getSettings:function(){
+        var that = this;
+        axios.get('/settings/all').then(function(response){
+          that.settings = response.data;
+        }).catch(function(error){
+          layer.msg(error);
+        });
+      },
+      setting:function(){
+        var that = this;
+        var index=layer.open({
+            type: 1,
+            shadeClose: true,
+            content: $('#setting')
+        });
+        layer.full(index);
+      },
+      saveSetting:function(key,value){
+        var that = this;
+        axios({
+                method:'post',
+                url:'/settings/save',
+                params: { key: key,value:value },
+            }).then(function (response) {
+                layer.msg(response.data);
+                that.getSettings();
+            }).catch(function (error) {
+                    console.log(error);
+                    layer.closeAll();
+            });
+      },
       viewimg:function(imgsrc){
         var that = this;
         layer.ready(function(){
