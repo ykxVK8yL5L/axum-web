@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=axum-web
-PKG_VERSION:=0.0.2
+PKG_VERSION:=0.0.4
 PKG_RELEASE:=$(AUTORELESE)
 
 PKG_LICENSE:=MIT
