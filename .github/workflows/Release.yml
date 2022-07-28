@@ -86,7 +86,7 @@ jobs:
           target: ${{ matrix.platform.target }}
           manylinux: auto
           container: off
-          args: --no-sdist --release -o dist --strip
+          args: --release -o dist --strip
       - name: Build wheels - musllinux
         if: matrix.platform.wheel
         uses: messense/maturin-action@v1
