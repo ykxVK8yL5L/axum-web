@@ -239,7 +239,6 @@ impl Video {
                 headers.insert(header::AUTHORIZATION, format!("token {}",&github_token).parse().unwrap());
                 headers.insert(header::CONTENT_TYPE, "application/x-www-form-urlencoded".parse().unwrap());
                 headers.insert(header::USER_AGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.114 Safari/537.36".parse().unwrap());
-                let params = [("ref", "main")];
                 let client = reqwest::blocking::Client::new();
                 let res = client.post(github_actions_url)
                     .headers(headers)
