@@ -21,6 +21,13 @@ pub struct HomeTemplate {
 }
 
 
+#[derive(Template)]
+#[template(path = "password_generator.html")]
+pub struct PasswordGeneratorTemplate {
+    pub name: String,
+}
+
+
 
 #[derive(Template)]
 #[template(path = "music.html")]

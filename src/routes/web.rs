@@ -4,13 +4,13 @@ use axum::{
     response::{IntoResponse},
 };
 use crate::controllers::{
-    index::{root,greet},
+    index::{root,greet,password_generator},
     gateways,
     settings,
 };
 use crate::{config::env::ServerConfig};
 // use std::fs;
-use crate::utils::{template::{HtmlTemplate,HomeTemplate}};
+use crate::utils::{template::{HtmlTemplate,HomeTemplate,PasswordGeneratorTemplate}};
 
 
 pub async fn home() -> impl IntoResponse {
@@ -29,6 +29,7 @@ pub fn create_web_router(config:&ServerConfig)->Router{
     let web_router = Router::new().route("/greet/:name", get(greet))
     .route("/", get(home))
     .route("/hello", get(root))
+    .route("/password", get(password_generator))
     .route("/gateways/all", get(gateways::all))
     .route("/gateways/add", post(gateways::add))
     .route("/gateways/save", post(gateways::save))

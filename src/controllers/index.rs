@@ -1,4 +1,4 @@
-use crate::utils::template::{HtmlTemplate,HelloTemplate};
+use crate::utils::template::{HtmlTemplate,HelloTemplate,PasswordGeneratorTemplate};
 use axum::{
     extract,
     response::{IntoResponse},
@@ -16,6 +16,15 @@ pub async fn greet(extract::Path(name): extract::Path<String>) -> impl IntoRespo
   let hellotemplate =HelloTemplate { name };
   HtmlTemplate(hellotemplate)
 }
+
+
+pub async fn password_generator() -> impl IntoResponse {
+  let name="密码生成器".to_string();
+  let hellotemplate =PasswordGeneratorTemplate { name };
+  HtmlTemplate(hellotemplate)
+}
+
+
 
 
 
