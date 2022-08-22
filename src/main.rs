@@ -18,7 +18,7 @@ use std::{
 };
 use structopt::StructOpt;
 use tracing::{info,Level};
-use tracing_subscriber::FmtSubscriber;
+use tracing_subscriber::{EnvFilter, fmt, prelude::*};
 
 #[cfg(not(target_os = "windows"))]
 use webdav_handler::{fakels::FakeLs, localfs::LocalFs,DavHandler};
@@ -40,11 +40,14 @@ mod middlewares;
 
 #[tokio::main]
 async fn main() {
-    if env::var("RUST_LOG").is_err() {
-      env::set_var("RUST_LOG", "axum-web=info");
+    tracing_subscriber::registry()
+    .with(fmt::layer())
+    .with(EnvFilter::from_env("AXUM_WEB_LOG"))
+    .init();
+    if env::var("AXUM_WEB_LOG").is_err() {
+       env::set_var("AXUM_WEB_LOG", "axum_web=info");
     }
-    let subscriber = FmtSubscriber::builder().with_max_level(Level::INFO).finish();
-    tracing::subscriber::set_global_default(subscriber).expect("setting default subscriber failed");
+
     let config = config::env::ServerConfig::from_args();
     let wevdav_app = async {
         let webdav_config = config.clone();

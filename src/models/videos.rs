@@ -1,7 +1,7 @@
 use crate::{schema::videos::{self,dsl::*}};
 use diesel::prelude::*;
 use diesel::dsl::count;
-use tracing::info;
+use tracing::{info,debug};
 use crate::db::Connection;
 use serde::{ Deserialize, Serialize };
 use chrono::{NaiveDateTime, Utc};
@@ -135,7 +135,7 @@ impl Video {
         let mongodb_url = match Setting::find_value_by_key(&"MONGO_DB_CONNECT".to_string(), conn) {
             Ok(gateway) => gateway,
             Err(err) => {
-                info!("{:?}", err);
+                debug!("{:?}", err);
                 "".to_string()
             }
         };
@@ -150,7 +150,7 @@ impl Video {
         let mut sync_count = 0;
 
         for result in cursor {
-            //info!("title: {}", &result?.size);
+           debug!("get result");
            match result {
                 Ok(remote) => {
                     let video = VideoDTO {
@@ -164,7 +164,7 @@ impl Video {
                     sync_count += 1;
                 }
                 Err(err) => {
-                    info!("{:?}", err);
+                    debug!("{:?}", err);
                 }
             }
         }
@@ -177,7 +177,7 @@ impl Video {
         let mongodb_url = match Setting::find_value_by_key(&"MONGO_DB_CONNECT".to_string(), conn) {
             Ok(gateway) => gateway,
             Err(err) => {
-                info!("{:?}", err);
+                debug!("{:?}", err);
                 "".to_string()
             }
         };
@@ -212,7 +212,7 @@ impl Video {
             let github_actions_url = match Setting::find_value_by_key(&"GITHUB_ACTIONS_URL".to_string(), conn) {
                 Ok(gateway) => gateway,
                 Err(err) => {
-                    info!("{:?}", err);
+                    debug!("{:?}", err);
                     "".to_string()
                 }
             };
@@ -223,7 +223,7 @@ impl Video {
             let github_token = match Setting::find_value_by_key(&"GITHUB_TOKEN".to_string(), conn) {
                 Ok(gateway) => gateway,
                 Err(err) => {
-                    info!("{:?}", err);
+                    debug!("{:?}", err);
                     "".to_string()
                 }
             };
@@ -244,7 +244,7 @@ impl Video {
                     .body("{\"ref\":\"main\"}")
                     .send();
 
-                //info!("res: {:?}", &res);
+                debug!("res: {:?}", &res);
                 match res { 
                     Ok(res) => {
                         let status = res.status();

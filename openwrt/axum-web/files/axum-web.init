@@ -29,7 +29,7 @@ start_service() {
 
       case $(uci_get_by_type server debug) in
         1|on|true|yes|enabled)
-          procd_append_param env RUST_LOG="axum-web=debug" ;;
+          procd_append_param env AXUM_WEB_LOG="axum-web=debug" ;;
         *) ;;
       esac
       procd_close_instance ;;

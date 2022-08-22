@@ -7,7 +7,7 @@ use axum::{
     http::{StatusCode},
     response::{IntoResponse},
 };
-use tracing::info;
+use tracing::{info, debug};
 use crate::utils::template::{HtmlTemplate,VideoTemplate};
 use crate::{
     db::Pool,
@@ -23,7 +23,7 @@ pub async fn videos_home(Extension(pool): Extension<Pool>,) -> impl IntoResponse
     let gateway = match Setting::find_value_by_key(&"gateway".to_string(), &pool.get().unwrap()) {
         Ok(gateway) => gateway,
         Err(err) => {
-            info!("{:?}", err);
+            debug!("{:?}", err);
             "".to_string()
         }
     };
@@ -33,7 +33,7 @@ pub async fn videos_home(Extension(pool): Extension<Pool>,) -> impl IntoResponse
 
 
 pub async fn videos_all(Query(params): Query<HashMap<String, String>>,Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
-    //info!("{}", params.get("search[value]").unwrap());
+    //debug!("{}", params.get("search[value]").unwrap());
     match Video::pagination(&params,&pool.get().unwrap()) {
         Ok(result) => {
             Ok(result)
@@ -147,12 +147,12 @@ pub async fn add_task(Query(params): Query<HashMap<String, String>>,Extension(po
 }
 
 pub async fn create_m3u(Extension(save_dir): Extension<String>,Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
-    //info!("{}", save_dir);
+    debug!("{}", save_dir);
     let m3u_path = format!("{}/{}", save_dir, "videos.m3u");
     let gateway = match Setting::find_value_by_key(&"gateway".to_string(), &pool.get().unwrap()) {
         Ok(gateway) => gateway,
         Err(err) => {
-            info!("{:?}", err);
+            debug!("{:?}", err);
             "".to_string()
         }
     };
