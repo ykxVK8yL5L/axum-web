@@ -19,12 +19,8 @@ use std::{
 use structopt::StructOpt;
 use tracing::{info,Level};
 use tracing_subscriber::{EnvFilter, fmt, prelude::*};
+use dav_server::{fakels::FakeLs, localfs::LocalFs,DavHandler};
 
-#[cfg(not(target_os = "windows"))]
-use webdav_handler::{fakels::FakeLs, localfs::LocalFs,DavHandler};
-
-#[cfg(target_os = "windows")]
-use webdav_handler_win::{fakels::FakeLs, localfs::LocalFs,DavHandler};
 
 
 mod config;
