@@ -24,6 +24,11 @@ pub async fn password_generator() -> impl IntoResponse {
   HtmlTemplate(hellotemplate)
 }
 
+pub async fn json_editor() -> impl IntoResponse {
+  let name="Json工具".to_string();
+  let jsoneditortemplate =JsonEditorTemplate { name };
+  HtmlTemplate(jsoneditortemplate)
+}
 
 
 
