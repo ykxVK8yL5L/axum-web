@@ -1,4 +1,4 @@
-use crate::utils::template::{HtmlTemplate,HelloTemplate,PasswordGeneratorTemplate};
+use crate::utils::template::{HtmlTemplate,HelloTemplate,PasswordGeneratorTemplate,JsonEditorTemplate};
 use axum::{
     extract,
     response::{IntoResponse},
