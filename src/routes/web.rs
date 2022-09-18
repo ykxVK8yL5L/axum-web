@@ -4,7 +4,7 @@ use axum::{
     response::{IntoResponse},
 };
 use crate::controllers::{
-    index::{root,greet,password_generator},
+    index::{root,greet,password_generator,json_editor},
     gateways,
     settings,
 };
@@ -30,6 +30,7 @@ pub fn create_web_router(config:&ServerConfig)->Router{
     .route("/", get(home))
     .route("/hello", get(root))
     .route("/password", get(password_generator))
+    .route("/jsoneditor", get(json_editor))
     .route("/gateways/all", get(gateways::all))
     .route("/gateways/add", post(gateways::add))
     .route("/gateways/save", post(gateways::save))
