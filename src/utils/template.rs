@@ -28,6 +28,12 @@ pub struct PasswordGeneratorTemplate {
 }
 
 
+#[derive(Template)]
+#[template(path = "jsoneditor.html")]
+pub struct JsonEditorTemplate {
+    pub name: String,
+}
+
 
 #[derive(Template)]
 #[template(path = "music.html")]
@@ -42,6 +48,8 @@ pub struct VideoTemplate {
     pub name: String,
     pub gateway: String,
 }
+
+
 
 
 
