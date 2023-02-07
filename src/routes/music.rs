@@ -17,13 +17,13 @@ pub fn create_music_router(config:&ServerConfig)->Router{
     .route("/musicquery",post(music::music_query))
     .route("/musiclrcquery",get(music::music_lrc_query))
     .route("/musicdownload",post(music::music_download))
-    .nest("/music-data",get_service(ServeDir::new(music_data_dir.clone())).handle_error(|error: std::io::Error| async move {
-            (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Unhandled internal error: {}", error),
-            )
-        }),
-    )
+    // .nest("/music-data",get_service(ServeDir::new(music_data_dir.clone())).handle_error(|error: std::io::Error| async move {
+    //         (
+    //             StatusCode::INTERNAL_SERVER_ERROR,
+    //             format!("Unhandled internal error: {}", error),
+    //         )
+    //     }),
+    // )
     .layer(AddExtensionLayer::new(music_data_dir));
     music_routes
 }

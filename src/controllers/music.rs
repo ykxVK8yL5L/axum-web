@@ -71,7 +71,7 @@ pub async fn music_lrc_query(mlqr: Query<MusicLrcQueryRequest>) -> Result<String
         .expect("send");
     Ok(body)      
 }
-pub async fn music_download(Json(song): Json<SongRequest>,Extension(save_dir): Extension<String>) -> Result<String, (StatusCode, String)> {
+pub async fn music_download(Extension(save_dir): Extension<String>,Json(song): Json<SongRequest>,) -> Result<String, (StatusCode, String)> {
     let filename = format!("{}-{}",song.name,song.artist);
     let mp3_path_name = format!("{}/mp3/{}.mp3",save_dir,filename.clone());
     let cover_path_name = format!("{}/cover/{}.png",save_dir,filename.clone());

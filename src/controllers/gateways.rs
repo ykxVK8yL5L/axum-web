@@ -24,7 +24,7 @@ pub async fn all(Extension(pool): Extension<Pool>,) -> Result<String, (StatusCod
 }
 
 
-pub async fn add(Json(gateway_dto): Json<GatewayDTO>,Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
+pub async fn add(Extension(pool): Extension<Pool>,Json(gateway_dto): Json<GatewayDTO>,) -> Result<String, (StatusCode, String)> {
     match Gateway::insert(gateway_dto,&pool.get().unwrap()) {
         Ok(_) => {
             Ok(String::from("成功添加"))

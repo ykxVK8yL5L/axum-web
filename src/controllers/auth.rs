@@ -24,7 +24,7 @@ pub struct TokenBodyResponse {
 
 
 
-pub async fn signup(Json(user_dto): Json<UserDTO>,Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
+pub async fn signup(Extension(pool): Extension<Pool>,Json(user_dto): Json<UserDTO>,) -> Result<String, (StatusCode, String)> {
   match User::signup(user_dto, &pool.get().unwrap()) {
       Ok(message) => {
         let response_body = ResponseBody::new(&message, constants::EMPTY);
@@ -39,7 +39,7 @@ pub async fn signup(Json(user_dto): Json<UserDTO>,Extension(pool): Extension<Poo
   }
 }
  
-pub async fn login(Json(login_dto): Json<LoginDTO>,Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
+pub async fn login(Extension(pool): Extension<Pool>,Json(login_dto): Json<LoginDTO>,) -> Result<String, (StatusCode, String)> {
   match User::login(login_dto, &pool.get().unwrap()) {
       Some(logged_user) => {
         let token_response = TokenBodyResponse{ token: UserToken::generate_token(&logged_user), token_type: String::from("bearer")};
@@ -68,6 +68,7 @@ pub async fn login(Json(login_dto): Json<LoginDTO>,Extension(pool): Extension<Po
         Ok(response)
       } 
   }
+
 }
 
 pub async fn logout(req: Request<Body>) -> Result<String, (StatusCode, String)> {

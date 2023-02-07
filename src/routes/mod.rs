@@ -5,7 +5,7 @@ use axum::{
     Router,
     http::{header, Uri,StatusCode},
     response::{IntoResponse, Response},
-    handler::Handler,
+    handler::{Handler, HandlerWithoutStateExt}, Extension,
 };
 use std::{
   time::Duration,
@@ -34,8 +34,8 @@ pub fn create_router(config:&ServerConfig)-> Router{
     automod::create_controllers_route!("src/routes");
     let app = Router::new()
     .merge(empty_route)
-    .route("/assets/", static_handler.into_service())
-    .fallback(static_handler.into_service())
+    .route_service("/assets/", static_handler.into_service())
+    .fallback_service(static_handler.into_service())
     .layer(
       ServiceBuilder::new()
       .layer(HandleErrorLayer::new(|error: BoxError| async move {
@@ -52,8 +52,7 @@ pub fn create_router(config:&ServerConfig)-> Router{
       .layer(TraceLayer::new_for_http())
       .into_inner(),
     )
-    .layer(AddExtensionLayer::new(pool));
-   
+    .layer(Extension(pool));
     app
 }
 
@@ -67,6 +66,7 @@ async fn static_handler(uri: Uri) -> impl IntoResponse {
 #[folder = "public/assets"]
 struct Asset;
 pub struct StaticFile<T>(pub T);
+
 impl<T> IntoResponse for StaticFile<T>
 where
   T: Into<String>,

@@ -32,7 +32,7 @@ pub async fn videos_home(Extension(pool): Extension<Pool>,) -> impl IntoResponse
 }
 
 
-pub async fn videos_all(Query(params): Query<HashMap<String, String>>,Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
+pub async fn videos_all(Extension(pool): Extension<Pool>,Query(params): Query<HashMap<String, String>>,) -> Result<String, (StatusCode, String)> {
     //debug!("{}", params.get("search[value]").unwrap());
     match Video::pagination(&params,&pool.get().unwrap()) {
         Ok(result) => {
@@ -44,7 +44,7 @@ pub async fn videos_all(Query(params): Query<HashMap<String, String>>,Extension(
     }
 }
 
-pub async fn add(Json(video): Json<VideoDTO>,Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
+pub async fn add(Extension(pool): Extension<Pool>,Json(video): Json<VideoDTO>,) -> Result<String, (StatusCode, String)> {
     match Video::insert(video,&pool.get().unwrap()) {
         Ok(_) => {
             Ok(String::from("添加成功"))
@@ -56,7 +56,7 @@ pub async fn add(Json(video): Json<VideoDTO>,Extension(pool): Extension<Pool>,) 
 }
 
 
-pub async fn edit(Query(params): Query<HashMap<String, String>>,Json(video): Json<VideoDTO>,Extension(pool): Extension<Pool>,) -> Result<String, (StatusCode, String)> {
+pub async fn edit(Extension(pool): Extension<Pool>,Query(params): Query<HashMap<String, String>>,Json(video): Json<VideoDTO>,) -> Result<String, (StatusCode, String)> {
     let video_id = match params.get("id") {
         Some(id) => id.parse::<i32>().unwrap(),
         None => {
