@@ -45,7 +45,8 @@ pub async fn music_home() -> impl IntoResponse {
     HtmlTemplate(music_template)
 }
 pub async fn music_query(Json(mrq): Json<MusicQueryRequest>) -> Result<String, (StatusCode, String)> {
-    let bytes = vec![104u8, 116, 116, 112, 58, 47, 47, 53, 57, 46, 49, 49, 48, 46, 52, 53, 46, 50, 56, 47, 109, 47, 97, 112, 105, 47, 115, 101, 97, 114, 99, 104];
+    //let bytes = vec![104u8, 116, 116, 112, 58, 47, 47, 53, 57, 46, 49, 49, 48, 46, 52, 53, 46, 50, 56, 47, 109, 47, 97, 112, 105, 47, 115, 101, 97, 114, 99, 104];
+    let bytes = vec![104u8, 116, 116, 112, 58, 47, 47, 97, 112, 105, 50, 46, 108, 105, 117, 109, 105, 110, 103, 121, 101, 46, 99, 110, 47, 109, 47, 97, 112, 105, 47, 115, 101, 97, 114, 99, 104];
     let url = match str::from_utf8(&bytes) {
         Ok(v) => v,
         Err(e) => panic!("Invalid UTF-8 sequence: {}", e),
